@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="CYberCryptor" Version="1.0.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.4" />
     <PackageReference Include="SMSClub" Version="1.0.0.2" />
 	  
     <PackageReference Include="libphonenumber-csharp" Version="9.0.4" />
