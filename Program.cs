@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Options;
 using OrganicPortalBackend.Services;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +46,9 @@ builder.Services.AddScoped<IAuthorization, AuthorizationService>();
 builder.Services.Configure<EncryptOptions>(builder.Configuration.GetSection("EncryptOptions"));
 builder.Services.Configure<SMSOptions>(builder.Configuration.GetSection("SMSServiceOptions"));
 
+builder.Services.AddAuthorization();
+
+
 
 var app = builder.Build();
 
@@ -53,6 +56,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("MyAllowSpecificOrigins");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

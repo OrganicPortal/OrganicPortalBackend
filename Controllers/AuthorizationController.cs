@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OrganicPortalBackend.Services;
+using OrganicPortalBackend.Services.Attribute;
 using System.ComponentModel.DataAnnotations;
 
 namespace OrganicPortalBackend.Controllers
@@ -40,8 +41,17 @@ namespace OrganicPortalBackend.Controllers
         }
 
 
+        [HttpGet("refresh")]
+        [Authorized]
+        public async Task<IActionResult> GetRefreshAsync()
+        {
+            return Ok();
+        }
+
+
         private string getIp { get { return "127.0.0.1"; } }
         private string getRegToken { get { return HttpContext.Request.Headers["RegToken"].FirstOrDefault() ?? ""; } }
+        private string getToken { get { return HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] ?? ""; } }
     }
 
 
@@ -55,7 +65,6 @@ namespace OrganicPortalBackend.Controllers
         [RegularExpression(ProgramSettings.PasswordPattern)]
         public string Password { get; set; } = string.Empty;
     }
-
     public class SignUpIncomingObj
     {
         [Required]
@@ -78,7 +87,6 @@ namespace OrganicPortalBackend.Controllers
         [Phone]
         public string Phone { get; set; } = string.Empty;
     }
-
     public class SignUpVerifIncomingObj
     {
         [Required]

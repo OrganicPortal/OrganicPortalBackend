@@ -335,7 +335,11 @@ namespace OrganicPortalBackend.Services
             SMSClub smsClub = new SMSClub(_smsOptions.Key);
             smsClub.AddPhone(phone);
 
+#if DEBUG
+            Console.WriteLine(code);
+#else
             var result = await smsClub.PostSMSAsync(_smsOptions.AlphaName, code);
+#endif
         }
         private string GenerateCode(int len = ProgramSettings.CodeLength)
         {
