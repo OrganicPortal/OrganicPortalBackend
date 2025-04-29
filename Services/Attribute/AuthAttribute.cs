@@ -33,7 +33,7 @@ namespace OrganicPortalBackend.Services.Attribute
                 if (dbToken != null)
                 {
                     dbToken.LastActivityDate = DateTime.UtcNow;
-                    dbToken.ExpiredDate = DateTime.UtcNow;
+                    dbToken.ExpiredDate = DateTime.UtcNow.AddMinutes(ProgramSettings.TokenExpiredMinuts);
 
                     _dbContext.SessionTable.Update(dbToken);
                     await _dbContext.SaveChangesAsync();

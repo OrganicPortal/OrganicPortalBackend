@@ -42,6 +42,8 @@ builder.Services.AddDbContextFactory<OrganicContext>(options =>
 );
 
 builder.Services.AddScoped<IAuthorization, AuthorizationService>();
+builder.Services.AddScoped<ICompany, CompanyService>();
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.Configure<EncryptOptions>(builder.Configuration.GetSection("EncryptOptions"));
 builder.Services.Configure<SMSOptions>(builder.Configuration.GetSection("SMSServiceOptions"));

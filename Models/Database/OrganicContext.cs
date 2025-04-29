@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OrganicPortalBackend.Models.Database.Company;
 using OrganicPortalBackend.Models.Database.RegUser;
 using OrganicPortalBackend.Models.Database.User;
 using OrganicPortalBackend.Models.Database.User.Recovery;
@@ -26,5 +27,12 @@ namespace OrganicPortalBackend.Models.Database
 
 
 
+        // Таблиці компанії
+        /* */
+        public DbSet<CompanyModel> CompanyTable { get; set; }
+        public DbSet<CompanyContactModel> CompanyContactTable { get; set; }
+        public DbSet<CompanyTypeOfActivityModel> CompanyTypeOfActivityTable { get; set; }
+        public DbSet<EmployeesModel> EmployeesTable { get; set; }
+        /* */
     }
 }

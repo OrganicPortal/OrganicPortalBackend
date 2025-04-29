@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OrganicPortalBackend.Models.Database.Company;
+using System.ComponentModel.DataAnnotations;
 
 namespace OrganicPortalBackend.Models.Database.User
 {
@@ -22,5 +23,8 @@ namespace OrganicPortalBackend.Models.Database.User
         [Length(2, 30)]
         public string LastName { get; set; } = string.Empty;
         #endregion
+
+
+        public ICollection<EmployeesModel> CompanyList { get; set; } = new List<EmployeesModel>();
     }
 }
