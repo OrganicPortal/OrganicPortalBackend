@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrganicPortalBackend.Models.Database.RegUser;
 using OrganicPortalBackend.Models.Database.User;
+using OrganicPortalBackend.Models.Database.User.Recovery;
 using OrganicPortalBackend.Models.Database.User.Session;
 
 namespace OrganicPortalBackend.Models.Database
@@ -20,5 +21,8 @@ namespace OrganicPortalBackend.Models.Database
 
 
         public DbSet<RegModel> RegTable { get; set; }
+
+
+        public DbSet<RecoveryModel> RecoveryTable { get; set; }
     }
 }

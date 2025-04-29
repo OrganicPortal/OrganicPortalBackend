@@ -6,6 +6,7 @@ using OrganicPortalBackend.Controllers;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Database.RegUser;
 using OrganicPortalBackend.Models.Database.User;
+using OrganicPortalBackend.Models.Database.User.Recovery;
 using OrganicPortalBackend.Models.Database.User.Session;
 using OrganicPortalBackend.Models.Options;
 using OrganicPortalBackend.Services.Response;
@@ -21,6 +22,9 @@ namespace OrganicPortalBackend.Services
         public Task<ResponseFormatter> SignUpAsync(SignUpIncomingObj incomingObj, string ip);
         public Task<ResponseFormatter> VerifySignUpAsync(string code, string token, string ip);
         public Task<ResponseFormatter> RetryVerifSMSAsync(string token, string ip);
+
+        public Task<ResponseFormatter> InitRecoveryAsync(InitRecoveryIncomingObj incomingObj);
+        public Task<ResponseFormatter> RecoveryAsync(RecoveryIncomingObj incomingObj, string token);
     }
     public class AuthorizationService : IAuthorization
     {
@@ -223,7 +227,7 @@ namespace OrganicPortalBackend.Services
             _dbContext.RegTable.Add(regModel);
             await _dbContext.SaveChangesAsync();
 
-            await SendSMSCode(regModel.Code, phone);
+            await SendSMSCode("Код підтвердження реєстрації, на сайті organicportal.in.ua: " + regModel.Code, phone);
 
             // Response token
             return new ResponseFormatter(type: HttpStatusCode.OK,
@@ -330,15 +334,155 @@ namespace OrganicPortalBackend.Services
         }
 
 
-        private async Task SendSMSCode(string code, string phone)
+        public async Task<ResponseFormatter> InitRecoveryAsync(InitRecoveryIncomingObj incomingObj)
+        {
+            // Initialize the current phone variable
+            string phone = string.Empty;
+
+            // Try to disassemble the phone in UA format
+            try
+            {
+                PhoneNumberUtil phoneUntil = PhoneNumberUtil.GetInstance();
+                PhoneNumber phoneNumber = phoneUntil.Parse(incomingObj.Phone, "UA");
+
+                phone = "+" + phoneNumber.CountryCode + phoneNumber.NationalNumber;
+            }
+            catch
+            {
+                // Response error
+                return new ResponseFormatter(message: "Вказаний номер не підтримується.");
+            }
+
+
+            // Generate scheme
+            CYberFormatter cyberFormatter = new CYberFormatter();
+            string phoneShema = cyberFormatter.EncryptMethod(phone, _encryptOptions.PhoneKey);
+
+            string code = GenerateCode();
+            DateTime dateTime = DateTime.UtcNow;
+
+            RecoveryModel recovery = new RecoveryModel
+            {
+                CreatedDate = dateTime,
+                Token = cyberFormatter.EncryptMethod(phone, _encryptOptions.TokenKey),
+                Code = code
+            };
+
+
+            var dbPhone = await _dbContext.PhoneTable
+                .Where(item => EF.Functions.Collate(item.Phone, "SQL_Latin1_General_CP1_CS_AS") == phoneShema)
+                .Where(item => item.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (dbPhone != null)
+            {
+                var lastRecovery = await _dbContext.RecoveryTable
+                    .Where(item => EF.Functions.Collate(item.Token, "SQL_Latin1_General_CP1_CS_AS") == recovery.Token)
+                    .OrderByDescending(item => item.CreatedDate)
+                    .FirstOrDefaultAsync();
+
+                if (lastRecovery != null && lastRecovery.ExpiredDate.AddMinutes(-2) >= dateTime)
+                    // Response token
+                    return new ResponseFormatter(type: HttpStatusCode.OK,
+                        message: "Зачекайте ще хвилинку. Можливо СМС затримуєтсья.",
+                        data: new
+                        {
+                            Token = lastRecovery.Token
+                        });
+
+
+                var dayRecoveryCount = await _dbContext.RecoveryTable
+                    .Where(item => EF.Functions.Collate(item.Token, "SQL_Latin1_General_CP1_CS_AS") == recovery.Token)
+                    .Where(item => item.ExpiredDate >= new DateTime(dateTime.Year, dateTime.Month, dateTime.Day))
+                    .CountAsync();
+
+
+                if (dayRecoveryCount >= ProgramSettings.MaxCodeCount)
+                    // Response error
+                    return new ResponseFormatter(message: "Сталася невідома помилка. Спробуйте відновити доступ пізніше.");
+
+
+                _dbContext.RecoveryTable.Add(recovery);
+                await _dbContext.SaveChangesAsync();
+
+
+                await SendSMSCode("Код скидання паролю: " + code, phone);
+            }
+
+            // Response token
+            return new ResponseFormatter(type: HttpStatusCode.OK,
+                message: "На вказаний номер було надіслано СМС повідомлення з кодом.",
+                data: new
+                {
+                    Token = recovery.Token
+                });
+        }
+        public async Task<ResponseFormatter> RecoveryAsync(RecoveryIncomingObj incomingObj, string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                return new ResponseFormatter(message: "Код не дійсний!");
+
+            var recovery = await _dbContext.RecoveryTable
+                .Where(item => EF.Functions.Collate(item.Token, "SQL_Latin1_General_CP1_CS_AS") == token)
+                .Where(item => item.Code == incomingObj.Code)
+                .Where(item => item.ExpiredDate >= DateTime.UtcNow)
+                .FirstOrDefaultAsync();
+
+            if (recovery != null)
+            {
+                // Generate scheme
+                CYberFormatter cyberFormatter = new CYberFormatter();
+                string phone = cyberFormatter.DecryptMethod(token, _encryptOptions.TokenKey);
+                string phoneShema = cyberFormatter.EncryptMethod(phone, _encryptOptions.PhoneKey);
+
+                var dbPhone = await _dbContext.PhoneTable
+                    .Where(item => EF.Functions.Collate(item.Phone, "SQL_Latin1_General_CP1_CS_AS") == phoneShema)
+                    .FirstOrDefaultAsync();
+
+                if (dbPhone != null)
+                {
+                    var password = await _dbContext.PasswordTable
+                        .Where(item => item.Key == dbPhone.Key)
+                        .Where(item => item.IsActive == true)
+                        .FirstOrDefaultAsync();
+
+                    if (password != null)
+                    {
+                        recovery.ExpiredDate = DateTime.UtcNow;
+
+                        password.DeactivateDate = DateTime.UtcNow;
+                        password.IsActive = false;
+
+                        PasswordModel newPassword = new PasswordModel
+                        {
+                            Key = dbPhone.Key,
+                            Password = cyberFormatter.EncryptMethod(incomingObj.Password, _encryptOptions.PasswordKey),
+                            IsActive = true
+                        };
+
+                        _dbContext.RecoveryTable.Update(recovery);
+                        _dbContext.PasswordTable.Add(newPassword);
+                        _dbContext.PasswordTable.Update(password);
+                        await _dbContext.SaveChangesAsync();
+
+
+                        return new ResponseFormatter(type: HttpStatusCode.OK, message: "Пароль змінено успішно. Скористайтеся формою входу для продовження.");
+                    }
+                }
+            }
+
+            return new ResponseFormatter(message: "Код не дійсний!");
+        }
+
+        private async Task SendSMSCode(string message, string phone)
         {
             SMSClub smsClub = new SMSClub(_smsOptions.Key);
             smsClub.AddPhone(phone);
 
 #if DEBUG
-            Console.WriteLine(code);
+            Console.WriteLine(message);
 #else
-            var result = await smsClub.PostSMSAsync(_smsOptions.AlphaName, code);
+            var result = await smsClub.PostSMSAsync(_smsOptions.AlphaName, message);
 #endif
         }
         private string GenerateCode(int len = ProgramSettings.CodeLength)

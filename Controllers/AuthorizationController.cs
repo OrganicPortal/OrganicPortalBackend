@@ -49,11 +49,41 @@ namespace OrganicPortalBackend.Controllers
         }
 
 
+        [HttpPost("recovery/init")]
+        public async Task<IActionResult> PostInitRecoveryAsync(InitRecoveryIncomingObj incomingObj)
+        {
+            return (await _authorizationService.InitRecoveryAsync(incomingObj)).Results;
+        }
+
+        [HttpPost("recovery/new-password")]
+        public async Task<IActionResult> PostRecoveryAsync(RecoveryIncomingObj incomingObj)
+        {
+            return (await _authorizationService.RecoveryAsync(incomingObj, getRecoveryToken)).Results;
+        }
+
+
         private string getIp { get { return "127.0.0.1"; } }
         private string getRegToken { get { return HttpContext.Request.Headers["RegToken"].FirstOrDefault() ?? ""; } }
+        private string getRecoveryToken { get { return HttpContext.Request.Headers["RecoveryToken"].FirstOrDefault() ?? ""; } }
         private string getToken { get { return HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] ?? ""; } }
     }
 
+    public class InitRecoveryIncomingObj
+    {
+        [Required]
+        [Phone]
+        public string Phone { get; set; } = string.Empty;
+    }
+    public class RecoveryIncomingObj
+    {
+        [Required]
+        [Phone]
+        public string Code { get; set; } = string.Empty;
+
+        [Required]
+        [RegularExpression(ProgramSettings.PasswordPattern)]
+        public string Password { get; set; } = string.Empty;
+    }
 
     public class SignInIncomingObj
     {
