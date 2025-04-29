@@ -65,7 +65,6 @@ namespace OrganicPortalBackend.Controllers
         private string getIp { get { return "127.0.0.1"; } }
         private string getRegToken { get { return HttpContext.Request.Headers["RegToken"].FirstOrDefault() ?? ""; } }
         private string getRecoveryToken { get { return HttpContext.Request.Headers["RecoveryToken"].FirstOrDefault() ?? ""; } }
-        private string getToken { get { return HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] ?? ""; } }
     }
 
     public class InitRecoveryIncomingObj

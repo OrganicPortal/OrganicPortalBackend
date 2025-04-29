@@ -20,7 +20,6 @@ namespace OrganicPortalBackend.Services.Attribute
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            int userId = int.Parse(context.HttpContext.User?.Identity?.Name ?? "0");
             string token = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] ?? "";
 
             if (!string.IsNullOrWhiteSpace(token))

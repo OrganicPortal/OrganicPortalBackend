@@ -6,6 +6,7 @@ namespace OrganicPortalBackend.Models.Database.User
     {
         [Key]
         public long Id { get; set; }
+        public DateTime CreatedDate { get; init; } = DateTime.UtcNow;
         public string Key { get; set; } = string.Empty; // *#* schema
 
 

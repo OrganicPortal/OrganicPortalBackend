@@ -11,18 +11,20 @@ namespace OrganicPortalBackend.Models.Database
         public OrganicContext(DbContextOptions<OrganicContext> options) : base(options) { }
 
 
-        #region user_info
+        // Таблиці користувача
+        /* */
+        public DbSet<RegModel> RegTable { get; set; }
+
         public DbSet<UserModel> UserTable { get; set; }
         public DbSet<PasswordModel> PasswordTable { get; set; }
         public DbSet<PhoneModel> PhoneTable { get; set; }
 
         public DbSet<SessionModel> SessionTable { get; set; }
-        #endregion
-
-
-        public DbSet<RegModel> RegTable { get; set; }
-
 
         public DbSet<RecoveryModel> RecoveryTable { get; set; }
+        /* */
+
+
+
     }
 }
