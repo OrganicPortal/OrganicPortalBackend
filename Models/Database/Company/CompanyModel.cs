@@ -83,6 +83,8 @@ namespace OrganicPortalBackend.Models.Database.Company
         // Список видів діяльності
         public ICollection<CompanyTypeOfActivityModel> TypeOfActivityList { get; set; } = new List<CompanyTypeOfActivityModel>();
 
+        // Список насіння
+        public ICollection<SeedModel> SeedList { get; set; } = new List<SeedModel>();
         /* */
     }
 
