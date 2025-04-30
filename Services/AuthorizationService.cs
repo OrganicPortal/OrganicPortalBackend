@@ -308,13 +308,13 @@ namespace OrganicPortalBackend.Services
                 .FirstOrDefaultAsync();
 
             if (dbToken == null)
-                return new ResponseFormatter(message: "Схоже час підтвердження сплив. Спробйте пізніше.");
+                return new ResponseFormatter(message: "Схоже час підтвердження сплив. Спробуйте пізніше.");
 
 
             RegTokenInformation info = JsonSerializer.Deserialize<RegTokenInformation>(cyberFormatter.DecryptMethod(dbToken.Token, _encryptOptions.TokenKey))!;
 
             if (info.ExpiredDate < DateTime.UtcNow || dbToken.CodeCount >= ProgramSettings.MaxCodeCount)
-                return new ResponseFormatter(message: "Схоже час підтвердження сплив. Спробйте пізніше.");
+                return new ResponseFormatter(message: "Схоже час підтвердження сплив. Спробуйте пізніше.");
 
             if (dbToken.ExpiredDate.AddMinutes(-2) >= DateTime.UtcNow)
                 return new ResponseFormatter(type: HttpStatusCode.OK, message: "Код ще дійсний. Зачекайте ще хвилину.");
