@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using OrganicPortalBackend.Models.Database.Seed;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace OrganicPortalBackend.Models.Database.Company
