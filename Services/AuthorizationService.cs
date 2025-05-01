@@ -25,6 +25,8 @@ namespace OrganicPortalBackend.Services
 
         public Task<ResponseFormatter> InitRecoveryAsync(InitRecoveryIncomingObj incomingObj);
         public Task<ResponseFormatter> RecoveryAsync(RecoveryIncomingObj incomingObj, string token);
+
+        public Task<ResponseFormatter> UserRoles(string token);
     }
     public class AuthorizationService : IAuthorization
     {
@@ -472,6 +474,23 @@ namespace OrganicPortalBackend.Services
             }
 
             return new ResponseFormatter(message: "Код не дійсний!");
+        }
+
+        public async Task<ResponseFormatter> UserRoles(string token)
+        {
+            CYberFormatter cyberFormatter = new CYberFormatter();
+            long userId = JsonSerializer.Deserialize<TokenInformation>(cyberFormatter.DecryptMethod(token, _encryptOptions.TokenKey))!.UserId;
+
+            var roles = await _dbContext.EmployeesTable
+                .Where(item => item.UserId == userId)
+                .Select(item => item.Role)
+                .Distinct()
+                .ToListAsync();
+
+            return new ResponseFormatter(
+                type: HttpStatusCode.OK,
+                data: roles
+                );
         }
 
         private async Task SendSMSCode(string message, string phone)

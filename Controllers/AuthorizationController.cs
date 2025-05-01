@@ -48,6 +48,13 @@ namespace OrganicPortalBackend.Controllers
             return Ok();
         }
 
+        [HttpGet("get-roles")]
+        [Authorized]
+        public async Task<IActionResult> GetUserRolesAsync()
+        {
+            return (await _authorizationService.UserRoles(getRegToken)).Results;
+        }
+
 
         [HttpPost("recovery/init")]
         public async Task<IActionResult> PostInitRecoveryAsync(InitRecoveryIncomingObj incomingObj)
