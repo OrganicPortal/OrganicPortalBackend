@@ -22,6 +22,9 @@ namespace OrganicPortalBackend.Services
 
         public Task<ResponseFormatter> RemoveContactAsync(long companyId, long contactId);
         public Task<ResponseFormatter> AddContactAsync(long companyId, CompanyContactIncomingObj incomingObj);
+
+        public Task<ResponseFormatter> RemoveTypeOfActivityAsync(long companyId, long typeOfActivityId);
+        public Task<ResponseFormatter> AddTypeOfActivityAsync(long companyId, EnumTypeOfInteractivity typeOfActivity);
         /* */
 
 
@@ -264,7 +267,7 @@ namespace OrganicPortalBackend.Services
             if (dbContact != null)
                 return new ResponseFormatter(
                     type: System.Net.HttpStatusCode.OK,
-                    message: "Вказаний контакт вже був прив'язаний.");
+                    message: "Надані контактні дані вже були вказані.");
 
             CompanyContactModel contactObj = new CompanyContactModel
             {
@@ -279,13 +282,56 @@ namespace OrganicPortalBackend.Services
 
             return new ResponseFormatter(
                 type: System.Net.HttpStatusCode.OK,
-                message: "Вказаний контакт вже був прив'язаний.",
+                message: "Контактні дані додано.",
                 data: new
                 {
                     contactObj.Id,
                     contactObj.Type,
                     TypeDescription = "",
                     contactObj.Contact
+                });
+        }
+
+        public async Task<ResponseFormatter> RemoveTypeOfActivityAsync(long companyId, long typeOfActivityId)
+        {
+            var typeOfActivity = await _dbContext.CompanyTypeOfActivityTable.FirstOrDefaultAsync(item => item.Id == typeOfActivityId && item.CompanyId == companyId);
+
+            if (typeOfActivity != null)
+            {
+                _dbContext.CompanyTypeOfActivityTable.Remove(typeOfActivity);
+                await _dbContext.SaveChangesAsync();
+
+                return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
+            }
+
+            return new ResponseFormatter();
+        }
+        public async Task<ResponseFormatter> AddTypeOfActivityAsync(long companyId, EnumTypeOfInteractivity typeOfActivity)
+        {
+            // Перевіряємо чи такий контакт вже є в компанії
+            var dbTypeOfActivity = await _dbContext.CompanyTypeOfActivityTable.FirstOrDefaultAsync(item => item.Type == typeOfActivity && item.CompanyId == companyId);
+            if (dbTypeOfActivity != null)
+                return new ResponseFormatter(
+                    type: System.Net.HttpStatusCode.OK,
+                    message: "Вказаний вид діяльності вже був вказаний.");
+
+            CompanyTypeOfActivityModel typeOfActivityObj = new CompanyTypeOfActivityModel
+            {
+                Type = typeOfActivity,
+                CompanyId = companyId
+            };
+
+            _dbContext.CompanyTypeOfActivityTable.Add(typeOfActivityObj);
+            await _dbContext.SaveChangesAsync();
+
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                message: "Вид діяльності додано.",
+                data: new
+                {
+                    typeOfActivityObj.Id,
+                    typeOfActivityObj.Type,
+                    TypeDescription = "",
                 });
         }
         /* */
