@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database.Company;
 using OrganicPortalBackend.Services;
 using OrganicPortalBackend.Services.Attribute;
@@ -8,7 +9,7 @@ namespace OrganicPortalBackend.Controllers
 {
     [ApiController]
     [Authorized]
-    [Route("api/company")]
+    [Route("api/companies")]
     public class CompanyController : ControllerBase
     {
         private string getToken { get { return HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] ?? ""; } }
@@ -20,6 +21,8 @@ namespace OrganicPortalBackend.Controllers
         }
 
 
+        // Користувацькі ендпойнти
+        /* */
         [HttpPost("new")]
         public async Task<IActionResult> PostNewCompanyAsync(CompanyIncomingObj incomingObj)
         {
@@ -33,7 +36,21 @@ namespace OrganicPortalBackend.Controllers
             return (await _companyService.EditCompanyAsync(incomingObj)).Results;
         }
 
-        [HttpGet("my-company")]
+        [HttpPatch("add-contact")]
+        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
+        public async Task<IActionResult> PatchAddContactAsync([FromQuery] long companyId, CompanyContactIncomingObj incomingObj)
+        {
+            return (await _companyService.AddContactAsync(companyId, incomingObj)).Results;
+        }
+
+        [HttpDelete("contact")]
+        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
+        public async Task<IActionResult> DeleteRemoveContactAsync([FromQuery] long companyId, [FromQuery] long contactId)
+        {
+            return (await _companyService.RemoveContactAsync(companyId, contactId)).Results;
+        }
+
+        [HttpGet("my-companies")]
         public async Task<IActionResult> GetMyCompanyAsync()
         {
             return (await _companyService.MyCompanyAsync(getToken)).Results;
@@ -52,8 +69,42 @@ namespace OrganicPortalBackend.Controllers
         {
             return (await _companyService.ArchivateCompanyAsync(companyId)).Results;
         }
+        /* */
+
+
+        // Адміністративні ендпойнти
+        /* */
+        [HttpPost("list")]
+        [Roles(useCompanyId: false, roles: [EnumUserRole.SysAdmin, EnumUserRole.SysManager])]
+        public async Task<IActionResult> PostCompanyListAsync(ListIncomingObj incomingObj)
+        {
+            return (await _companyService.CompanyListAsync(incomingObj.Paginator)).Results;
+        }
+
+        [HttpGet("")]
+        [Roles(useCompanyId: false, roles: [EnumUserRole.SysAdmin, EnumUserRole.SysManager])]
+        public async Task<IActionResult> GetCompanyAsync([FromQuery] long companyId)
+        {
+            if (companyId > 0)
+                return (await _companyService.CompanyAsync(companyId)).Results;
+
+            return BadRequest();
+        }
+
+        [HttpPatch("set-trust")]
+        [Roles(useCompanyId: false, roles: [EnumUserRole.SysAdmin, EnumUserRole.SysManager])]
+        public async Task<IActionResult> PatchChangeTrustCompanyAsync([FromQuery] long companyId, [FromQuery] EnumTrustStatus trustStatus)
+        {
+            if (companyId > 0)
+                return (await _companyService.ChangeTrustCompanyAsync(companyId, trustStatus)).Results;
+
+            return BadRequest();
+        }
+        /* */
     }
 
+    // Користувацькі вхідні об'єкти
+    /* */
     // Вхідна інформація, для редагування даних компанії
     public class EditCompanyIncomingObj
     {
@@ -153,4 +204,16 @@ namespace OrganicPortalBackend.Controllers
         // #exemple::+380765432134
         public string Contact { get; set; } = string.Empty;
     }
+    /* */
+
+
+    // Адміністративні вхідні об'єкти
+    /* */
+    public class ListIncomingObj
+    {
+        [Required]
+        // Пагінатор стоірнок
+        public Paginator Paginator { get; set; }
+    }
+    /* */
 }

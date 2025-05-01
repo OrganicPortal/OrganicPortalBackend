@@ -1,6 +1,7 @@
 ﻿using Comfy.Enums;
 using Microsoft.EntityFrameworkCore;
 using OrganicPortalBackend.Controllers;
+using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Database.Company;
 using OrganicPortalBackend.Services.Response;
@@ -10,12 +11,26 @@ namespace OrganicPortalBackend.Services
 {
     public interface ICompany
     {
+        // Користувацькі методи
+        /* */
         public Task<ResponseFormatter> NewCompanyAsync(CompanyIncomingObj incomingObj, string token);
         public Task<ResponseFormatter> EditCompanyAsync(EditCompanyIncomingObj incomingObj);
 
         public Task<ResponseFormatter> MyCompanyAsync(string token);
         public Task<ResponseFormatter> CompanyInfoAsync(long companyId);
         public Task<ResponseFormatter> ArchivateCompanyAsync(long companyId);
+
+        public Task<ResponseFormatter> RemoveContactAsync(long companyId, long contactId);
+        public Task<ResponseFormatter> AddContactAsync(long companyId, CompanyContactIncomingObj incomingObj);
+        /* */
+
+
+        // Адміністративні методи
+        /* */
+        public Task<ResponseFormatter> CompanyListAsync(Paginator paginator);
+        public Task<ResponseFormatter> CompanyAsync(long companyId);
+        public Task<ResponseFormatter> ChangeTrustCompanyAsync(long companyId, EnumTrustStatus trustStatus);
+        /* */
     }
     public class CompanyService : ICompany
     {
@@ -28,6 +43,8 @@ namespace OrganicPortalBackend.Services
         }
 
 
+        // Користувацькі методи
+        /* */
         public async Task<ResponseFormatter> NewCompanyAsync(CompanyIncomingObj incomingObj, string token)
         {
             // Перевірка на збіги
@@ -50,30 +67,15 @@ namespace OrganicPortalBackend.Services
             // Формуємо контактні дані
             foreach (var el in incomingObj.ContactList.Distinct())
             {
-                string contact = "";
+                var contactValue = CheckContacn(el.Contact, el.Type);
 
-                switch (el.Type)
-                {
-                    case EnumCompanyContactType.Phone:
-                        try
-                        {
-                            PhoneNumberUtil phoneUntil = PhoneNumberUtil.GetInstance();
-                            PhoneNumber phoneNumber = phoneUntil.Parse(el.Contact, "UA");
-
-                            contact = "+" + phoneNumber.CountryCode + phoneNumber.NationalNumber;
-                            break;
-                        }
-                        catch { }
-                        return new ResponseFormatter(message: string.Format("Контактні дані \"{0}\" не відповідають типу \"{1}\"", el.Contact, el.Type.GetDescription()));
-
-                    default:
-                        return new ResponseFormatter(message: string.Format("Контактні дані \"{0}\" містять не підтримуваний тип.", el.Contact));
-                }
+                if (contactValue.Item1 == false)
+                    return new ResponseFormatter(message: contactValue.Item2);
 
                 company.ContactsList.Add(new CompanyContactModel
                 {
                     Type = el.Type,
-                    Contact = contact
+                    Contact = contactValue.Item2
                 });
             }
 
@@ -139,10 +141,12 @@ namespace OrganicPortalBackend.Services
                     item.Id,
                     item.Name,
                     item.Description,
+                    item.TrustStatus,
+                    TrustDescription = "",
 
                     item.CreatedDate,
-                    item.TrustStatus,
-                    item.isArchivated
+                    item.isArchivated,
+                    item.ArchivationDate,
                 })
                 .ToListAsync();
 
@@ -169,7 +173,9 @@ namespace OrganicPortalBackend.Services
                     item.RegistrationNumber,
                     item.Address,
                     item.TrustStatus,
+                    TrustDescription = "",
                     item.LegalType,
+                    LegalDescription = "",
                     item.EstablishmentDate,
                     item.isArchivated,
                     item.ArchivationDate,
@@ -178,6 +184,7 @@ namespace OrganicPortalBackend.Services
                     {
                         el.Id,
                         el.Type,
+                        TypeDescription = "",
                         el.Contact
                     })
                     .ToList(),
@@ -185,7 +192,8 @@ namespace OrganicPortalBackend.Services
                     TypeOfActivityList = item.TypeOfActivityList.Select(el => new
                     {
                         el.Id,
-                        el.Type
+                        el.Type,
+                        TypeDescription = "",
                     })
                     .ToList(),
 
@@ -227,6 +235,143 @@ namespace OrganicPortalBackend.Services
             await _dbContext.SaveChangesAsync();
 
             return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, message: "Компанію було заархівовано. Для розархівування, зверніться до служби підтримки.");
+        }
+
+        public async Task<ResponseFormatter> RemoveContactAsync(long companyId, long contactId)
+        {
+            var contact = await _dbContext.CompanyContactTable.FirstOrDefaultAsync(item => item.Id == contactId && item.CompanyId == companyId);
+
+            if (contact != null)
+            {
+                _dbContext.CompanyContactTable.Remove(contact);
+                await _dbContext.SaveChangesAsync();
+
+                return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
+            }
+
+            return new ResponseFormatter();
+        }
+        public async Task<ResponseFormatter> AddContactAsync(long companyId, CompanyContactIncomingObj incomingObj)
+        {
+
+            var contactValue = CheckContacn(incomingObj.Contact, incomingObj.Type);
+
+            if (contactValue.Item1 == false)
+                return new ResponseFormatter(message: contactValue.Item2);
+
+            // Перевіряємо чи такий контакт вже є в компанії
+            var dbContact = await _dbContext.CompanyContactTable.FirstOrDefaultAsync(item => item.Contact == contactValue.Item2 && item.CompanyId == companyId);
+            if (dbContact != null)
+                return new ResponseFormatter(
+                    type: System.Net.HttpStatusCode.OK,
+                    message: "Вказаний контакт вже був прив'язаний.");
+
+            CompanyContactModel contactObj = new CompanyContactModel
+            {
+                Type = incomingObj.Type,
+                Contact = contactValue.Item2,
+
+                CompanyId = companyId
+            };
+
+            _dbContext.CompanyContactTable.Add(contactObj);
+            await _dbContext.SaveChangesAsync();
+
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                message: "Вказаний контакт вже був прив'язаний.",
+                data: new
+                {
+                    contactObj.Id,
+                    contactObj.Type,
+                    TypeDescription = "",
+                    contactObj.Contact
+                });
+        }
+        /* */
+
+
+        // Адміністративні методи
+        /* */
+        public async Task<ResponseFormatter> CompanyListAsync(Paginator paginator)
+        {
+            var query = _dbContext.CompanyTable;
+
+            long count = await query.CountAsync();
+            var items = await query
+                .Select(item => new
+                {
+                    item.Id,
+                    item.Name,
+                    item.Description,
+                    item.TrustStatus,
+                    TrustDescription = "",
+
+                    item.CreatedDate,
+                    item.isArchivated,
+                    item.ArchivationDate,
+                })
+                .OrderByDescending(item => item.CreatedDate)
+                .Skip(paginator.Skip)
+                .Take(paginator.PageSize)
+                .ToListAsync();
+
+
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                data: new
+                {
+                    Count = count,
+                    Items = items
+                });
+        }
+        public async Task<ResponseFormatter> CompanyAsync(long companyId)
+        {
+            return await CompanyInfoAsync(companyId);
+        }
+        public async Task<ResponseFormatter> ChangeTrustCompanyAsync(long companyId, EnumTrustStatus trustStatus)
+        {
+            var company = await _dbContext.CompanyTable.FirstOrDefaultAsync(item => item.Id == companyId);
+
+            if (company != null)
+            {
+                company.TrustStatus = trustStatus;
+
+                _dbContext.CompanyTable.Update(company);
+                await _dbContext.SaveChangesAsync();
+
+                return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
+            }
+
+            return new ResponseFormatter();
+        }
+        /* */
+
+
+        // Перевіряє контакт на відповідність типу
+        private Tuple<bool, string> CheckContacn(string contact, EnumCompanyContactType type)
+        {
+            string value = "";
+
+            switch (type)
+            {
+                case EnumCompanyContactType.Phone:
+                    try
+                    {
+                        PhoneNumberUtil phoneUntil = PhoneNumberUtil.GetInstance();
+                        PhoneNumber phoneNumber = phoneUntil.Parse(contact, "UA");
+
+                        value = "+" + phoneNumber.CountryCode + phoneNumber.NationalNumber;
+                        break;
+                    }
+                    catch { }
+                    return new Tuple<bool, string>(false, string.Format("Контактні дані \"{0}\" не відповідають типу \"{1}\"", contact, type.GetDescription()));
+
+                default:
+                    return new Tuple<bool, string>(false, string.Format("Контактні дані \"{0}\" містять не підтримуваний тип.", contact));
+            }
+
+            return new Tuple<bool, string>(true, value);
         }
     }
 }
