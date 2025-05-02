@@ -483,7 +483,11 @@ namespace OrganicPortalBackend.Services
 
             var roles = await _dbContext.EmployeesTable
                 .Where(item => item.UserId == userId)
-                .Select(item => item.Role)
+                .Select(item => new
+                {
+                    item.Role,
+                    item.CompanyId
+                })
                 .Distinct()
                 .ToListAsync();
 
