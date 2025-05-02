@@ -19,6 +19,7 @@ namespace OrganicPortalBackend.Services
     public interface IAuthorization
     {
         public Task<ResponseFormatter> SignInAsync(SignInIncomingObj incomingObj);
+        public Task<ResponseFormatter> SignOutAsync(string token);
         public Task<ResponseFormatter> SignUpAsync(SignUpIncomingObj incomingObj, string ip);
         public Task<ResponseFormatter> VerifySignUpAsync(string code, string token, string ip);
         public Task<ResponseFormatter> RetryVerifSMSAsync(string token, string ip);
@@ -138,6 +139,18 @@ namespace OrganicPortalBackend.Services
 
             // Response error
             return new ResponseFormatter(message: "Перевірте правильність введених даних.");
+        }
+        public async Task<ResponseFormatter> SignOutAsync(string token)
+        {
+            var account = await _dbContext.SessionTable.FirstOrDefaultAsync(item => EF.Functions.Collate(item.Token, "SQL_Latin1_General_CP1_CS_AS") == token);
+
+            if (account != null)
+            {
+                account.ExpiredDate = DateTime.UtcNow;
+                await _dbContext.SaveChangesAsync();
+            }
+
+            return new ResponseFormatter(type: HttpStatusCode.OK);
         }
         public async Task<ResponseFormatter> SignUpAsync(SignUpIncomingObj incomingObj, string ip)
         {

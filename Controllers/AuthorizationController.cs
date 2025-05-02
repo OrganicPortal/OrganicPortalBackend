@@ -22,6 +22,12 @@ namespace OrganicPortalBackend.Controllers
             return (await _authorizationService.SignInAsync(incomingObj)).Results;
         }
 
+        [HttpGet("sign-out")]
+        public async Task<IActionResult> GetSignOutAsync()
+        {
+            return (await _authorizationService.SignOutAsync(getToken)).Results;
+        }
+
         [HttpPost("sign-up")]
         public async Task<IActionResult> PostSignUpAsync(SignUpIncomingObj incomingObj)
         {
