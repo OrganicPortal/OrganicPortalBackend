@@ -19,51 +19,51 @@ namespace OrganicPortalBackend.Controllers
         [HttpPost("sign-in")]
         public async Task<IActionResult> PostSignInAsync(SignInIncomingObj incomingObj)
         {
-            return (await _authorizationService.SignInAsync(incomingObj)).Results;
+            return (await _authorizationService.SignInAsync(incomingObj)).Result;
         }
 
         [HttpGet("sign-out")]
         public async Task<IActionResult> GetSignOutAsync()
         {
-            return (await _authorizationService.SignOutAsync(getToken)).Results;
+            return (await _authorizationService.SignOutAsync(getToken)).Result;
         }
 
         [HttpPost("sign-up")]
         public async Task<IActionResult> PostSignUpAsync(SignUpIncomingObj incomingObj)
         {
-            return (await _authorizationService.SignUpAsync(incomingObj, getIp)).Results;
+            return (await _authorizationService.SignUpAsync(incomingObj, getIp)).Result;
         }
 
         [HttpPost("sign-up/verif")]
         public async Task<IActionResult> PostVerifySignUpAsync(SignUpVerifIncomingObj incomingObj)
         {
-            return (await _authorizationService.VerifySignUpAsync(incomingObj.Code, getRegToken, getIp)).Results;
+            return (await _authorizationService.VerifySignUpAsync(incomingObj.Code, getRegToken, getIp)).Result;
         }
 
         [HttpGet("sign-up/retry")]
         public async Task<IActionResult> GetRetryVerifSMSAsync()
         {
-            return (await _authorizationService.RetryVerifSMSAsync(getRegToken, getIp)).Results;
+            return (await _authorizationService.RetryVerifSMSAsync(getRegToken, getIp)).Result;
         }
 
         [HttpGet("get-roles")]
         [Authorized]
         public async Task<IActionResult> GetUserRolesAsync()
         {
-            return (await _authorizationService.UserRoles(getToken)).Results;
+            return (await _authorizationService.UserRoles(getToken)).Result;
         }
 
 
         [HttpPost("recovery/init")]
         public async Task<IActionResult> PostInitRecoveryAsync(InitRecoveryIncomingObj incomingObj)
         {
-            return (await _authorizationService.InitRecoveryAsync(incomingObj)).Results;
+            return (await _authorizationService.InitRecoveryAsync(incomingObj)).Result;
         }
 
         [HttpPost("recovery/new-password")]
         public async Task<IActionResult> PostRecoveryAsync(RecoveryIncomingObj incomingObj)
         {
-            return (await _authorizationService.RecoveryAsync(incomingObj, getRecoveryToken)).Results;
+            return (await _authorizationService.RecoveryAsync(incomingObj, getRecoveryToken)).Result;
         }
 
 

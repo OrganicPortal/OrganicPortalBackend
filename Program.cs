@@ -43,6 +43,7 @@ builder.Services.AddDbContextFactory<OrganicContext>(options =>
 
 builder.Services.AddScoped<IAuthorization, AuthorizationService>();
 builder.Services.AddScoped<ICompany, CompanyService>();
+builder.Services.AddScoped<IUser, UserService>();
 builder.Services.AddScoped<TokenService>();
 
 builder.Services.Configure<EncryptOptions>(builder.Configuration.GetSection("EncryptOptions"));

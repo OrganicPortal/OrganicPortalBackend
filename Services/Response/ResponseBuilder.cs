@@ -19,7 +19,7 @@ namespace OrganicPortalBackend.Services.Response
         public T? Data { get; set; } = default(T);
 
 
-        public IActionResult Results
+        public IActionResult Result
         {
             get
             {

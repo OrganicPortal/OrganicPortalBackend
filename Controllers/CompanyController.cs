@@ -27,7 +27,7 @@ namespace OrganicPortalBackend.Controllers
         // Створення нової компанії
         public async Task<IActionResult> PostNewCompanyAsync(CompanyIncomingObj incomingObj)
         {
-            return (await _companyService.NewCompanyAsync(incomingObj, getToken)).Results;
+            return (await _companyService.NewCompanyAsync(incomingObj, getToken)).Result;
         }
 
         [HttpPatch("edit")]
@@ -35,7 +35,7 @@ namespace OrganicPortalBackend.Controllers
         // Редагування інформації про компанію
         public async Task<IActionResult> PatchEditCompanyAsync(EditCompanyIncomingObj incomingObj)
         {
-            return (await _companyService.EditCompanyAsync(incomingObj)).Results;
+            return (await _companyService.EditCompanyAsync(incomingObj)).Result;
         }
 
 
@@ -43,7 +43,7 @@ namespace OrganicPortalBackend.Controllers
         // Список всіх компаній користувача
         public async Task<IActionResult> GetMyCompanyAsync()
         {
-            return (await _companyService.MyCompanyAsync(getToken)).Results;
+            return (await _companyService.MyCompanyAsync(getToken)).Result;
         }
 
         [HttpGet("info")]
@@ -51,7 +51,7 @@ namespace OrganicPortalBackend.Controllers
         // Інформація про окмпанію
         public async Task<IActionResult> GetCompanyInfo([FromQuery] long companyId)
         {
-            return (await _companyService.CompanyInfoAsync(companyId)).Results;
+            return (await _companyService.CompanyInfoAsync(companyId)).Result;
         }
 
         [HttpGet("archiving")]
@@ -59,7 +59,7 @@ namespace OrganicPortalBackend.Controllers
         // Архівування компанії (аналог видалення)
         public async Task<IActionResult> PostArchivateCompanyAsync([FromQuery] long companyId)
         {
-            return (await _companyService.ArchivateCompanyAsync(companyId)).Results;
+            return (await _companyService.ArchivateCompanyAsync(companyId)).Result;
         }
 
 
@@ -68,7 +68,7 @@ namespace OrganicPortalBackend.Controllers
         // Додавання контактних даних до компанії
         public async Task<IActionResult> PatchAddContactAsync([FromQuery] long companyId, CompanyContactIncomingObj incomingObj)
         {
-            return (await _companyService.AddContactAsync(companyId, incomingObj)).Results;
+            return (await _companyService.AddContactAsync(companyId, incomingObj)).Result;
         }
 
         [HttpDelete("contact")]
@@ -76,7 +76,7 @@ namespace OrganicPortalBackend.Controllers
         // Видалення контактних даних компанії
         public async Task<IActionResult> DeleteRemoveContactAsync([FromQuery] long companyId, [FromQuery] long contactId)
         {
-            return (await _companyService.RemoveContactAsync(companyId, contactId)).Results;
+            return (await _companyService.RemoveContactAsync(companyId, contactId)).Result;
         }
 
 
@@ -85,7 +85,7 @@ namespace OrganicPortalBackend.Controllers
         // Додавання виду діяльності
         public async Task<IActionResult> PatchAddTypeOfActivityAsync([FromQuery] long companyId, EnumTypeOfInteractivity typeOfActivity)
         {
-            return (await _companyService.AddTypeOfActivityAsync(companyId, typeOfActivity)).Results;
+            return (await _companyService.AddTypeOfActivityAsync(companyId, typeOfActivity)).Result;
         }
 
         [HttpDelete("type-of-interactivity")]
@@ -93,7 +93,7 @@ namespace OrganicPortalBackend.Controllers
         // Видалення виду діяльності
         public async Task<IActionResult> DeleteRemoveTypeOfActivityAsync([FromQuery] long companyId, [FromQuery] long typeOfActivityId)
         {
-            return (await _companyService.RemoveTypeOfActivityAsync(companyId, typeOfActivityId)).Results;
+            return (await _companyService.RemoveTypeOfActivityAsync(companyId, typeOfActivityId)).Result;
         }
         /* */
 
@@ -105,7 +105,7 @@ namespace OrganicPortalBackend.Controllers
         // Повернення списку компаній в системі
         public async Task<IActionResult> PostCompanyListAsync(ListIncomingObj incomingObj)
         {
-            return (await _companyService.CompanyListAsync(incomingObj.Paginator)).Results;
+            return (await _companyService.CompanyListAsync(incomingObj.Paginator)).Result;
         }
 
         [HttpGet("")]
@@ -114,7 +114,7 @@ namespace OrganicPortalBackend.Controllers
         public async Task<IActionResult> GetCompanyAsync([FromQuery] long companyId)
         {
             if (companyId > 0)
-                return (await _companyService.CompanyAsync(companyId)).Results;
+                return (await _companyService.CompanyAsync(companyId)).Result;
 
             return BadRequest();
         }
@@ -125,7 +125,7 @@ namespace OrganicPortalBackend.Controllers
         public async Task<IActionResult> PatchChangeTrustCompanyAsync([FromQuery] long companyId, [FromQuery] EnumTrustStatus trustStatus)
         {
             if (companyId > 0)
-                return (await _companyService.ChangeTrustCompanyAsync(companyId, trustStatus)).Results;
+                return (await _companyService.ChangeTrustCompanyAsync(companyId, trustStatus)).Result;
 
             return BadRequest();
         }

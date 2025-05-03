@@ -399,7 +399,7 @@ namespace OrganicPortalBackend.Services
                 if (lastRecovery != null && lastRecovery.ExpiredDate.AddMinutes(-2) >= dateTime)
                     // Response token
                     return new ResponseFormatter(type: HttpStatusCode.OK,
-                        message: "Зачекайте ще хвилинку. Можливо СМС затримуєтсья.",
+                        message: "Зачекайте ще хвилинку. Можливо СМС затримується.",
                         data: new
                         {
                             Token = lastRecovery.Token
