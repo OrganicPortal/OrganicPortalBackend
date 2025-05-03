@@ -309,7 +309,7 @@ namespace OrganicPortalBackend.Services
             await _dbContext.SaveChangesAsync();
 
             // Response OK message
-            return new ResponseFormatter(type: HttpStatusCode.OK, message: "Код підтверджено. Скористайтеся формою входу для прожовження.");
+            return new ResponseFormatter(type: HttpStatusCode.OK, message: "Код підтверджено. Скористайтеся формою входу для продовження.");
         }
         public async Task<ResponseFormatter> RetryVerifSMSAsync(string token, string ip)
         {

@@ -20,7 +20,7 @@ namespace OrganicPortalBackend.Controllers
 
         // Користувацькі ендпойнти
         /* */
-        [HttpGet("my-profiles")]
+        [HttpGet("my-profile")]
         // Дані профілю користувача
         public async Task<IActionResult> GetMyCompanyAsync()
         {
