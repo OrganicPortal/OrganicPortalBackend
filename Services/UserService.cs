@@ -78,6 +78,7 @@ namespace OrganicPortalBackend.Services
                 .Include(item => item.CompanyList)
                 .ThenInclude(item => item.Company)
 
+                .Where(item => item.Id == userId)
                 .Select(item => new
                 {
                     item.Id,
