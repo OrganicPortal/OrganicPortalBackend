@@ -31,6 +31,12 @@ namespace OrganicPortalBackend.Models.Database.Seed
         /* */
         [Required]
         [Range(1, long.MaxValue)]
+        // Ідентифікатор насіння
+        public long SeedId { get; set; }
+        public SeedModel? Seed { get; set; } = null;
+
+        [Required]
+        [Range(1, long.MaxValue)]
         // Ідентифікатор сертифікату
         public long CERTId { get; set; }
         public CERTModel? CERT { get; set; } = null;
