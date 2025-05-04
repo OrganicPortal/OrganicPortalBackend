@@ -1,10 +1,8 @@
 ﻿using CYberCryptor;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Options;
 using OrganicPortalBackend.Controllers;
 using OrganicPortalBackend.Models.Database;
-using OrganicPortalBackend.Models.Database.User;
 using OrganicPortalBackend.Models.Options;
 using OrganicPortalBackend.Services.Response;
 

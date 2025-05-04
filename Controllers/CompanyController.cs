@@ -33,9 +33,9 @@ namespace OrganicPortalBackend.Controllers
         [HttpPatch("edit")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
         // Редагування інформації про компанію
-        public async Task<IActionResult> PatchEditCompanyAsync(EditCompanyIncomingObj incomingObj)
+        public async Task<IActionResult> PatchEditCompanyAsync([FromQuery] long companyId, EditCompanyIncomingObj incomingObj)
         {
-            return (await _companyService.EditCompanyAsync(incomingObj)).Result;
+            return (await _companyService.EditCompanyAsync(companyId, incomingObj)).Result;
         }
 
 
@@ -138,11 +138,6 @@ namespace OrganicPortalBackend.Controllers
     // Вхідна інформація, для редагування даних компанії
     public class EditCompanyIncomingObj
     {
-        [Required]
-        [Range(1, long.MaxValue)]
-        // Ідентифікатор компанії
-        public long CompanyId { get; set; }
-
         [Required]
         [MinLength(2)]
         // Ім'я установи (повна назва)
