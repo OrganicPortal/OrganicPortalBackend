@@ -14,7 +14,7 @@ namespace OrganicPortalBackend.Services
         // Користувацькі методи
         /* */
         public Task<ResponseFormatter> NewCompanyAsync(CompanyIncomingObj incomingObj, string token);
-        public Task<ResponseFormatter> EditCompanyAsync(EditCompanyIncomingObj incomingObj);
+        public Task<ResponseFormatter> EditCompanyAsync(long companyId, EditCompanyIncomingObj incomingObj);
 
         public Task<ResponseFormatter> MyCompanyAsync(string token);
         public Task<ResponseFormatter> CompanyInfoAsync(long companyId);
@@ -70,7 +70,7 @@ namespace OrganicPortalBackend.Services
             // Формуємо контактні дані
             foreach (var el in incomingObj.ContactList.Distinct())
             {
-                var contactValue = CheckContacn(el.Contact, el.Type);
+                var contactValue = CheckContact(el.Contact, el.Type);
 
                 if (contactValue.Item1 == false)
                     return new ResponseFormatter(message: contactValue.Item2);
@@ -112,10 +112,10 @@ namespace OrganicPortalBackend.Services
                     CompanyId = company.Id
                 });
         }
-        public async Task<ResponseFormatter> EditCompanyAsync(EditCompanyIncomingObj incomingObj)
+        public async Task<ResponseFormatter> EditCompanyAsync(long companyId, EditCompanyIncomingObj incomingObj)
         {
             CompanyModel? company = await _dbContext.CompanyTable
-                .Where(item => item.Id == incomingObj.CompanyId)
+                .Where(item => item.Id == companyId)
                 .FirstOrDefaultAsync();
 
             if (company == null)
@@ -257,7 +257,7 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> AddContactAsync(long companyId, CompanyContactIncomingObj incomingObj)
         {
 
-            var contactValue = CheckContacn(incomingObj.Contact, incomingObj.Type);
+            var contactValue = CheckContact(incomingObj.Contact, incomingObj.Type);
 
             if (contactValue.Item1 == false)
                 return new ResponseFormatter(message: contactValue.Item2);
@@ -395,7 +395,7 @@ namespace OrganicPortalBackend.Services
 
 
         // Перевіряє контакт на відповідність типу
-        private Tuple<bool, string> CheckContacn(string contact, EnumCompanyContactType type)
+        private Tuple<bool, string> CheckContact(string contact, EnumCompanyContactType type)
         {
             string value = "";
 
