@@ -44,8 +44,8 @@ namespace OrganicPortalBackend.Services
                 Variety = incomingObj.Variety,
                 SeedType = incomingObj.SeedType,
                 BatchNumber = incomingObj.BatchNumber,
-                HarvestDate = incomingObj.HarvestDate,
-                ExpiryDate = incomingObj.ExpiryDate,
+                HarvestDate = incomingObj.HarvestDate.ToUniversalTime(),
+                ExpiryDate = incomingObj.ExpiryDate.ToUniversalTime(),
                 TreatmentType = incomingObj.TreatmentType,
                 StorageConditions = incomingObj.StorageConditions,
                 AverageWeightThousandSeeds = incomingObj.AverageWeightThousandSeeds,
@@ -77,8 +77,8 @@ namespace OrganicPortalBackend.Services
             seed.Variety = incomingObj.Variety;
             seed.SeedType = incomingObj.SeedType;
             seed.BatchNumber = incomingObj.BatchNumber;
-            seed.HarvestDate = incomingObj.HarvestDate;
-            seed.ExpiryDate = incomingObj.ExpiryDate;
+            seed.HarvestDate = incomingObj.HarvestDate.ToUniversalTime();
+            seed.ExpiryDate = incomingObj.ExpiryDate.ToUniversalTime();
             seed.TreatmentType = incomingObj.TreatmentType;
             seed.StorageConditions = incomingObj.StorageConditions;
             seed.AverageWeightThousandSeeds = incomingObj.AverageWeightThousandSeeds;
