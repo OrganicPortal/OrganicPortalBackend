@@ -51,7 +51,7 @@ namespace OrganicPortalBackend.Services
             if (userId != incomingObj.UserId)
                 return new ResponseFormatter(message: "Ідентифікатор користувача не правильний.");
 
-            return await EditMyProfileAsync(incomingObj, token);
+            return await EditProfileAsync(incomingObj, token);
         }
         /* */
 
@@ -118,7 +118,7 @@ namespace OrganicPortalBackend.Services
             _dbContext.UserTable.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
+            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Дані успішно відредаговано");
         }
         /* */
     }
