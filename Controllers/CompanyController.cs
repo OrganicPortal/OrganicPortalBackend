@@ -186,7 +186,7 @@ namespace OrganicPortalBackend.Controllers
         public ICollection<CompanyContactIncomingObj> ContactList { get; set; } = new List<CompanyContactIncomingObj>();
 
         // Види діяльності
-        public ICollection<EnumTypeOfInteractivity> TypeOfActivityList { get; set; } = new List<EnumTypeOfInteractivity>();
+        public ICollection<int> TypeOfActivityList { get; set; } = new List<int>();
     }
 
     // Вхідна інформація, про контактні дані компанії

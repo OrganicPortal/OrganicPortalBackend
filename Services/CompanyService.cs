@@ -82,7 +82,7 @@ namespace OrganicPortalBackend.Services
                 company.TypeOfActivityList = incomingObj.TypeOfActivityList
                     .Select(item => new CompanyTypeOfActivityModel
                     {
-                        Type = item
+                        Type = item.ToEnum<EnumTypeOfInteractivity>()
                     })
                     .Distinct()
                     .ToList();
@@ -111,6 +111,8 @@ namespace OrganicPortalBackend.Services
             CompanyModel? company = await _dbContext.CompanyTable
                 .Include(item => item.ContactsList)
                 .Include(item => item.TypeOfActivityList)
+                .Include(item => item.EmployeesList)
+                .ThenInclude(item => item.User)
 
                 .Where(item => item.Id == companyId)
                 .FirstOrDefaultAsync();
@@ -138,71 +140,143 @@ namespace OrganicPortalBackend.Services
 
             // Перевіряємо на відповідність контактних даних (тимчасова)
             incomingObj.ContactList = incomingObj.ContactList
-                .Distinct()
+                .DistinctBy(item => item.Contact)
                 .ToList();
 
-            foreach (var cnt in company.ContactsList)
             {
-                var el = incomingObj.ContactList.FirstOrDefault(item => item.Contact == cnt.Contact && item.Type == cnt.Type);
-                if (el != null)
-                    incomingObj.ContactList.Remove(el);
-                else
-                    _dbContext.CompanyContactTable.Remove(cnt);
-            }
-
-            if (incomingObj.ContactList.Count() > 0)
-            {
-                foreach (var el in incomingObj.ContactList)
+                int i = 0;
+                while (company.ContactsList.ElementAtOrDefault(i) != null)
                 {
-                    company.ContactsList.Add(new CompanyContactModel
+                    var cnt = company.ContactsList.ElementAt(i);
+
+                    var el = incomingObj.ContactList.FirstOrDefault(item => item.Contact == cnt.Contact && item.Type == cnt.Type);
+                    if (el != null)
                     {
-                        Type = el.Type,
-                        Contact = el.Contact,
-
-                        CompanyId = companyId
-                    });
-                }
-            }
-
-            // Перевіряємо на відповідність тегів (тимчасова)
-            incomingObj.TypeOfActivityList = incomingObj.TypeOfActivityList
-                .Distinct()
-                .ToList();
-
-            try
-            {
-                foreach (var cnt in company.TypeOfActivityList)
-                {
-                    var isEl = incomingObj.TypeOfActivityList.Any(item => item.ToEnum<EnumTypeOfInteractivity>() == cnt.Type);
-                    if (isEl)
-                        incomingObj.TypeOfActivityList.Remove((int)cnt.Type);
+                        incomingObj.ContactList.Remove(el);
+                        i++;
+                    }
                     else
-                        _dbContext.CompanyTypeOfActivityTable.Remove(cnt);
+                    {
+                        _dbContext.CompanyContactTable.Remove(cnt);
+                        company.ContactsList.Remove(cnt);
+                    }
                 }
 
-                if (incomingObj.TypeOfActivityList.Count() > 0)
+                if (incomingObj.ContactList.Count() > 0)
                 {
-                    foreach (var el in incomingObj.TypeOfActivityList)
+                    foreach (var el in incomingObj.ContactList)
                     {
-                        company.TypeOfActivityList.Add(new CompanyTypeOfActivityModel
+                        company.ContactsList.Add(new CompanyContactModel
                         {
-                            Type = el.ToEnum<EnumTypeOfInteractivity>(),
+                            Type = el.Type,
+                            Contact = el.Contact,
 
                             CompanyId = companyId
                         });
                     }
                 }
             }
-            catch
             {
-                return new ResponseFormatter(message: "Один з видів діяльності вказаний не корректно.");
+                // Перевіряємо на відповідність тегів (тимчасова)
+                incomingObj.TypeOfActivityList = incomingObj.TypeOfActivityList
+                    .Distinct()
+                    .ToList();
+
+                try
+                {
+                    int i = 0;
+                    while (company.TypeOfActivityList.ElementAtOrDefault(i) != null)
+                    {
+                        var toa = company.TypeOfActivityList.ElementAt(i);
+
+                        var isEl = incomingObj.TypeOfActivityList.Any(item => item.ToEnum<EnumTypeOfInteractivity>() == toa.Type);
+                        if (isEl)
+                        {
+                            incomingObj.TypeOfActivityList.Remove((int)toa.Type);
+                            i++;
+                        }
+                        else
+                        {
+                            _dbContext.CompanyTypeOfActivityTable.Remove(toa);
+                            company.TypeOfActivityList.Remove(toa);
+                        }
+                    }
+
+                    if (incomingObj.TypeOfActivityList.Count() > 0)
+                    {
+                        foreach (var el in incomingObj.TypeOfActivityList)
+                        {
+                            company.TypeOfActivityList.Add(new CompanyTypeOfActivityModel
+                            {
+                                Type = el.ToEnum<EnumTypeOfInteractivity>(),
+
+                                CompanyId = companyId
+                            });
+                        }
+                    }
+                }
+                catch
+                {
+                    return new ResponseFormatter(message: "Один з видів діяльності вказаний не корректно.");
+                }
             }
 
 
             _dbContext.CompanyTable.Update(company);
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
+
+            object? responseCompany = new
+            {
+                company.Id,
+                company.CreatedDate,
+
+                company.Name,
+                company.Description,
+                company.RegistrationNumber,
+                company.Address,
+                company.TrustStatus,
+                TrustDescription = "",
+                company.LegalType,
+                company = "",
+                company.EstablishmentDate,
+                company.isArchivated,
+                company.ArchivationDate,
+
+                ContactList = company.ContactsList.Select(el => new
+                {
+                    el.Id,
+                    el.Type,
+                    TypeDescription = "",
+                    el.Contact
+                })
+                    .ToList(),
+
+                TypeOfActivityList = company.TypeOfActivityList.Select(el => new
+                {
+                    el.Id,
+                    el.Type,
+                    TypeDescription = "",
+                })
+                    .ToList(),
+
+                EmployeesList = company.EmployeesList.Select(el => new
+                {
+                    el.Id,
+                    el.Role,
+
+                    el.UserId,
+                    el.User!.FirstName,
+                    el.User.MiddleName,
+                    el.User.LastName,
+                })
+                    .ToList()
+            };
+
+
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                data: responseCompany);
         }
 
         public async Task<ResponseFormatter> MyCompanyAsync(string token)
