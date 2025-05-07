@@ -57,8 +57,8 @@ namespace OrganicPortalBackend.Services.Attribute
                                     .Where(item => Roles.AsQueryable().Contains(item.Role))
                                     .AnyAsync();
 
-                                //if (isValid)
-                                return;
+                                if (isValid)
+                                    return;
                             }
                         }
                     }
@@ -66,7 +66,7 @@ namespace OrganicPortalBackend.Services.Attribute
                 catch { }
             }
 
-            context.Result = new UnauthorizedResult();
+            context.Result = new BadRequestResult();
         }
 
         private long GetCompanyId(HttpContext httpContext)

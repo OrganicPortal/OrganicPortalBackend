@@ -61,40 +61,6 @@ namespace OrganicPortalBackend.Controllers
         {
             return (await _companyService.ArchivateCompanyAsync(companyId)).Result;
         }
-
-
-        [HttpPatch("add-contact")]
-        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
-        // Додавання контактних даних до компанії
-        public async Task<IActionResult> PatchAddContactAsync([FromQuery] long companyId, CompanyContactIncomingObj incomingObj)
-        {
-            return (await _companyService.AddContactAsync(companyId, incomingObj)).Result;
-        }
-
-        [HttpDelete("contact")]
-        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
-        // Видалення контактних даних компанії
-        public async Task<IActionResult> DeleteRemoveContactAsync([FromQuery] long companyId, [FromQuery] long contactId)
-        {
-            return (await _companyService.RemoveContactAsync(companyId, contactId)).Result;
-        }
-
-
-        [HttpPatch("add-type-of-interactivity")]
-        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
-        // Додавання виду діяльності
-        public async Task<IActionResult> PatchAddTypeOfActivityAsync([FromQuery] long companyId, EnumTypeOfInteractivity typeOfActivity)
-        {
-            return (await _companyService.AddTypeOfActivityAsync(companyId, typeOfActivity)).Result;
-        }
-
-        [HttpDelete("type-of-interactivity")]
-        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
-        // Видалення виду діяльності
-        public async Task<IActionResult> DeleteRemoveTypeOfActivityAsync([FromQuery] long companyId, [FromQuery] long typeOfActivityId)
-        {
-            return (await _companyService.RemoveTypeOfActivityAsync(companyId, typeOfActivityId)).Result;
-        }
         /* */
 
 
@@ -165,6 +131,15 @@ namespace OrganicPortalBackend.Controllers
         // Дата заснування компанії
         // #exemple::2001 рік
         public DateTime EstablishmentDate { get; set; } = DateTime.UtcNow;
+
+
+        [Required]
+        [MinLength(1)]
+        // Контактні дані компанії
+        public ICollection<CompanyContactIncomingObj> ContactList { get; set; } = new List<CompanyContactIncomingObj>();
+
+        // Види діяльності
+        public ICollection<int> TypeOfActivityList { get; set; } = new List<int>();
     }
 
     // Вхідна інформація, для формування нової компанії
@@ -211,7 +186,7 @@ namespace OrganicPortalBackend.Controllers
         public ICollection<CompanyContactIncomingObj> ContactList { get; set; } = new List<CompanyContactIncomingObj>();
 
         // Види діяльності
-        public ICollection<EnumTypeOfInteractivity> TypeOfInteractivityList { get; set; } = new List<EnumTypeOfInteractivity>();
+        public ICollection<EnumTypeOfInteractivity> TypeOfActivityList { get; set; } = new List<EnumTypeOfInteractivity>();
     }
 
     // Вхідна інформація, про контактні дані компанії
