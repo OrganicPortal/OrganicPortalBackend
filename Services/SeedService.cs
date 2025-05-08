@@ -41,6 +41,9 @@ namespace OrganicPortalBackend.Services
         /* */
         public async Task<ResponseFormatter> NewSeedAsync(long companyId, SeedIncomingObj incomingObj)
         {
+            if (await CompanyIsArchivated(companyId))
+                return new ResponseFormatter(message: "Ця компанія заархівована. Додавання заблоковане.");
+
             SeedModel seed = new SeedModel
             {
                 Name = incomingObj.Name,
@@ -69,6 +72,9 @@ namespace OrganicPortalBackend.Services
         }
         public async Task<ResponseFormatter> EditSeedAsync(long seedId, long companyId, SeedIncomingObj incomingObj)
         {
+            if (await CompanyIsArchivated(companyId))
+                return new ResponseFormatter(message: "Ця компанія заархівована. Редагування заблоковане.");
+
             var seed = await _dbContext.SeedTable.FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
@@ -94,6 +100,9 @@ namespace OrganicPortalBackend.Services
         }
         public async Task<ResponseFormatter> RemoveSeedAsync(long seedId, long companyId)
         {
+            if (await CompanyIsArchivated(companyId))
+                return new ResponseFormatter(message: "Ця компанія заархівована. Видалення заблоковане.");
+
             var seed = await _dbContext.SeedTable.FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
@@ -108,6 +117,9 @@ namespace OrganicPortalBackend.Services
         }
         public async Task<ResponseFormatter> SendSeedToCertificationAsync(long seedId, long companyId)
         {
+            if (await CompanyIsArchivated(companyId))
+                return new ResponseFormatter(message: "Ця компанія заархівована. Насіння неможливо надіслати на сертифікацію.");
+
             var seed = await _dbContext.SeedTable.FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
@@ -145,6 +157,9 @@ namespace OrganicPortalBackend.Services
 
         public async Task<ResponseFormatter> AddCERTAsync(long seedId, long companyId, CERTIncomingObj incomingObj)
         {
+            if (await CompanyIsArchivated(companyId))
+                return new ResponseFormatter(message: "Ця компанія заархівована. Неможливо додати сертифікат.");
+
             var seed = await _dbContext.SeedTable.FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
@@ -176,6 +191,9 @@ namespace OrganicPortalBackend.Services
         }
         public async Task<ResponseFormatter> RemoveCERTAsync(long UseCERTId, long companyId)
         {
+            if (await CompanyIsArchivated(companyId))
+                return new ResponseFormatter(message: "Ця компанія заархівована. Неможливо видалити сертифікат.");
+
             var cert = await _dbContext.UseCERTTable
                 .Include(item => item.Seed)
 
@@ -215,5 +233,13 @@ namespace OrganicPortalBackend.Services
         // Адміністративні методи
         /* */
         /* */
+
+        private async Task<bool> CompanyIsArchivated(long companyId)
+        {
+            return await _dbContext.CompanyTable
+                .Where(item => item.Id == companyId)
+                .Select(item => item.isArchivated)
+                .FirstOrDefaultAsync();
+        }
     }
 }

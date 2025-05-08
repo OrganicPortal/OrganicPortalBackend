@@ -2,7 +2,6 @@
 using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database.Company;
 using OrganicPortalBackend.Models.Database.Seed;
-using OrganicPortalBackend.Models.Database.Seed.CERT;
 using OrganicPortalBackend.Services;
 using OrganicPortalBackend.Services.Attribute;
 using System.ComponentModel.DataAnnotations;
