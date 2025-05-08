@@ -105,7 +105,7 @@ namespace OrganicPortalBackend.Services
                 data: new
                 {
                     CompanyId = company.Id
-                });
+                }, message: "Компанію успішно створено");
         }
         public async Task<ResponseFormatter> EditCompanyAsync(long companyId, EditCompanyIncomingObj incomingObj)
         {
@@ -277,7 +277,7 @@ namespace OrganicPortalBackend.Services
 
             return new ResponseFormatter(
                 type: System.Net.HttpStatusCode.OK,
-                data: responseCompany);
+                data: responseCompany, message: "Успішно відредаговано");
         }
 
         public async Task<ResponseFormatter> MyCompanyAsync(string token)
