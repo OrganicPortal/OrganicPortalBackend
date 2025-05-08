@@ -121,6 +121,9 @@ namespace OrganicPortalBackend.Services
             if (company == null)
                 return new ResponseFormatter();
 
+            if (company.isArchivated)
+                return new ResponseFormatter(message: "Ця компанія заархівована. Редагування заблоковане.");
+
             company.Name = incomingObj.Name;
             company.Description = incomingObj.Description;
             company.Address = incomingObj.Address;
