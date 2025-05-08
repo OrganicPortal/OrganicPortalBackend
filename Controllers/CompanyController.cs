@@ -61,6 +61,14 @@ namespace OrganicPortalBackend.Controllers
         {
             return (await _companyService.ArchivateCompanyAsync(companyId)).Result;
         }
+
+        [HttpGet("is-archivated")]
+        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
+        // Архівування компанії (аналог видалення)
+        public async Task<IActionResult> GetCheckArchivatedCompanyAsync([FromQuery] long companyId)
+        {
+            return (await _companyService.CheckArchivatedCompanyAsync(companyId)).Result;
+        }
         /* */
 
 

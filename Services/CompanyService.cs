@@ -19,6 +19,7 @@ namespace OrganicPortalBackend.Services
         public Task<ResponseFormatter> MyCompanyAsync(string token);
         public Task<ResponseFormatter> CompanyInfoAsync(long companyId);
         public Task<ResponseFormatter> ArchivateCompanyAsync(long companyId);
+        public Task<ResponseFormatter> CheckArchivatedCompanyAsync(long companyId);
         /* */
 
 
@@ -384,6 +385,23 @@ namespace OrganicPortalBackend.Services
             await _dbContext.SaveChangesAsync();
 
             return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, message: "Компанію було заархівовано. Для розархівування, зверніться до служби підтримки.");
+        }
+        public async Task<ResponseFormatter> CheckArchivatedCompanyAsync(long companyId)
+        {
+            bool? company = await _dbContext.CompanyTable
+                .Where(item => item.Id == companyId)
+                .Select(item => item.isArchivated)
+                .FirstOrDefaultAsync();
+
+            if (company == null)
+                return new ResponseFormatter();
+
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                data: new
+                {
+                    isArchivated = company
+                });
         }
 
         public async Task<ResponseFormatter> RemoveContactAsync(long companyId, long contactId)
