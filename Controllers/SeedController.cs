@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database.Company;
 using OrganicPortalBackend.Models.Database.Seed;
 using OrganicPortalBackend.Models.Database.Seed.CERT;
@@ -45,6 +46,14 @@ namespace OrganicPortalBackend.Controllers
         public async Task<IActionResult> DeleteRemoveSeedAsync([FromQuery] long seedId, [FromQuery] long companyId)
         {
             return (await _seedService.RemoveSeedAsync(seedId, companyId)).Result;
+        }
+
+        [HttpPost("list")]
+        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
+        // Відправка насіння на сертифікацію сервісом
+        public async Task<IActionResult> GetSeedList([FromQuery] long companyId, Paginator paginator)
+        {
+            return (await _seedService.SeedList(companyId, paginator)).Result;
         }
 
         [HttpGet("send-certifications")]

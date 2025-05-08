@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrganicPortalBackend.Controllers;
+using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Database.Seed;
 using OrganicPortalBackend.Services.Response;
@@ -14,6 +15,7 @@ namespace OrganicPortalBackend.Services
         public Task<ResponseFormatter> EditSeedAsync(long seedId, long companyId, SeedIncomingObj incomingObj);
         public Task<ResponseFormatter> RemoveSeedAsync(long seedId, long companyId);
         public Task<ResponseFormatter> SendSeedToCertificationAsync(long seedId, long companyId);
+        public Task<ResponseFormatter> SeedList(long companyId, Paginator paginator);
 
         public Task<ResponseFormatter> AddCERTAsync(long seedId, long companyId, CERTIncomingObj incomingObj);
         public Task<ResponseFormatter> RemoveCERTAsync(long UseCERTId, long companyId);
@@ -118,7 +120,26 @@ namespace OrganicPortalBackend.Services
 
             return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
         }
+        public async Task<ResponseFormatter> SeedList(long companyId, Paginator paginator)
+        {
+            var query = _dbContext.SeedTable
+                .Where(item => item.CompanyId == companyId);
 
+            var count = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(item => item.CreatedDate)
+                .Skip(paginator.Skip)
+                .Take(paginator.PageSize)
+                .ToListAsync();
+
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                data: new
+                {
+                    Count = count,
+                    Items = items
+                });
+        }
 
         public async Task<ResponseFormatter> AddCERTAsync(long seedId, long companyId, CERTIncomingObj incomingObj)
         {
