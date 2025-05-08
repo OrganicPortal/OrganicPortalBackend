@@ -19,6 +19,8 @@ namespace OrganicPortalBackend.Services
 
         public Task<ResponseFormatter> AddCERTAsync(long seedId, long companyId, CERTIncomingObj incomingObj);
         public Task<ResponseFormatter> RemoveCERTAsync(long UseCERTId, long companyId);
+
+        public Task<ResponseFormatter> CERTList();
         /* */
 
 
@@ -189,6 +191,23 @@ namespace OrganicPortalBackend.Services
             await _dbContext.SaveChangesAsync();
 
             return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
+        }
+        public async Task<ResponseFormatter> CERTList()
+        {
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                data: await _dbContext.CERTTable
+                .Select(item => new
+                {
+                    item.Id,
+                    item.Name,
+                    item.Number,
+                    item.IssuedBy,
+                    item.Description,
+                    item.IsAddlInfo,
+                })
+                .ToListAsync()
+                );
         }
         /* */
 

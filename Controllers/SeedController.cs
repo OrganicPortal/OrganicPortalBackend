@@ -80,6 +80,12 @@ namespace OrganicPortalBackend.Controllers
         {
             return (await _seedService.RemoveCERTAsync(UseCERTId, companyId)).Result;
         }
+
+        [HttpGet("certs")]
+        public async Task<IActionResult> GetCERTList()
+        {
+            return (await _seedService.CERTList()).Result;
+        }
         /* */
     }
 
@@ -130,7 +136,6 @@ namespace OrganicPortalBackend.Controllers
         public DateTime ExpiryDate { get; set; } = DateTime.UtcNow;
 
         [Required]
-        [MinLength(2)]
         // Оброблене насіння
         // #exemple::Untreated (Не оброблене)
         public EnumTreatmentType TreatmentType { get; set; } = EnumTreatmentType.Uncnown;
