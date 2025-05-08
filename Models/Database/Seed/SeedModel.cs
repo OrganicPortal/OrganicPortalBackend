@@ -96,13 +96,11 @@ namespace OrganicPortalBackend.Models.Database.Seed
         public DateTime HarvestDate { get; set; } = DateTime.UtcNow;
 
         [Required]
-        [MinLength(2)]
         // Термін придатності
         // #exemple::10.10.2029
         public DateTime ExpiryDate { get; set; } = DateTime.UtcNow;
 
         [Required]
-        [MinLength(2)]
         // Оброблене насіння
         // #exemple::Untreated (Не оброблене)
         public EnumTreatmentType TreatmentType { get; set; } = EnumTreatmentType.Uncnown;
@@ -120,7 +118,6 @@ namespace OrganicPortalBackend.Models.Database.Seed
         public double AverageWeightThousandSeeds { get; set; } = 0;
 
         [Required]
-        [Range(0, double.MaxValue)]
         // Новий запис видимий тільки користувачу
         // #exemple::New (Новий запис)
         public EnumSeedStatus Status { get; set; } = EnumSeedStatus.New;

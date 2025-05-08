@@ -124,13 +124,11 @@ namespace OrganicPortalBackend.Controllers
         public string BatchNumber { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(2)]
         // Дата виготовлення (збирання)
         // #exemple::10.03.2025
         public DateTime HarvestDate { get; set; } = DateTime.UtcNow;
 
         [Required]
-        [MinLength(2)]
         // Термін придатності
         // #exemple::10.10.2029
         public DateTime ExpiryDate { get; set; } = DateTime.UtcNow;
@@ -160,6 +158,5 @@ namespace OrganicPortalBackend.Controllers
         [Range(1, long.MaxValue)]
         // Ідентифікатор сертифікату
         public long CERTId { get; set; }
-        public CERTModel? CERT { get; set; } = null;
     }
 }

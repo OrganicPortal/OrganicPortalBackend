@@ -149,7 +149,7 @@ namespace OrganicPortalBackend.Services
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
 
-            if (seed.Status != EnumSeedStatus.New || seed.Status != EnumSeedStatus.Signed)
+            if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
                 return new ResponseFormatter(message: "Неможливо додати сертифікат. Насіння перебуває на етапі сертифікації.");
 
             if (await _dbContext.UseCERTTable.AnyAsync(item => item.SeedId == seedId && item.CERTId == incomingObj.CERTId))
