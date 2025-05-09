@@ -103,8 +103,43 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> SeedInfoAsync(long seedId, long companyId)
         {
             var item = await _dbContext.SeedTable
+                .Include(item => item.CERTsList)
+                .ThenInclude(item => item.CERT)
+
                 .Where(item => item.CompanyId == companyId)
                 .Where(item => item.Id == seedId)
+                .Select(item => new
+                {
+                    item.Name,
+                    item.ScientificName,
+                    item.Variety,
+                    item.SeedType,
+                    item.BatchNumber,
+                    item.HarvestDate,
+                    item.ExpiryDate,
+                    item.TreatmentType,
+                    item.StorageConditions,
+                    item.AverageWeightThousandSeeds,
+                    item.Status,
+                    item.CompanyId,
+
+                    CERTsList = item.CERTsList.Select(el => new
+                    {
+                        el.Id,
+                        el.IsVerified,
+                        el.CERTId,
+                        CERT = new
+                        {
+                            el.CERT!.Name,
+                            el.CERT!.Number,
+                            el.CERT!.IssuedBy,
+                            el.CERT!.Description,
+                            el.CERT!.IsAddlInfo,
+                        },
+                        el.CERTAdditionalId,
+                    })
+                    .ToList()
+                })
                 .FirstOrDefaultAsync();
 
             return new ResponseFormatter(
