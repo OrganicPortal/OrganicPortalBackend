@@ -180,7 +180,7 @@ namespace OrganicPortalBackend.Services
             _dbContext.SeedTable.Update(seed);
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
+            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Продукт відправлено на сертифікацію");
         }
         public async Task<ResponseFormatter> SeedList(long companyId, Paginator paginator)
         {
