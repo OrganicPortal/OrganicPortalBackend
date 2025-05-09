@@ -7,5 +7,8 @@
         public string Key { get; set; } = string.Empty;
         public string TokenKey { get; set; } = string.Empty;
         public string IPKey { get; set; } = string.Empty;
+
+        public string SolanaKey { get; set; } = string.Empty;
+        public string SolanaPrivate { get; set; } = string.Empty;
     }
 }

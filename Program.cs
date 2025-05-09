@@ -4,6 +4,7 @@ using Newtonsoft.Json.Serialization;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Options;
 using OrganicPortalBackend.Services;
+using OrganicPortalBackend.Services.Cronos;
 
 
 
@@ -36,6 +37,7 @@ builder.Services.AddCors(options =>
                       });
 });
 
+
 builder.Services.AddDbContextFactory<OrganicContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevConnection")),
     ServiceLifetime.Transient
@@ -46,12 +48,20 @@ builder.Services.AddScoped<ICompany, CompanyService>();
 builder.Services.AddScoped<IUser, UserService>();
 builder.Services.AddScoped<ISeed, SeedService>();
 builder.Services.AddScoped<ISolana, SolanaService>();
+builder.Services.AddScoped<ISolanaCERT, SolanaCERTService>();
 builder.Services.AddScoped<TokenService>();
 
 builder.Services.Configure<EncryptOptions>(builder.Configuration.GetSection("EncryptOptions"));
 builder.Services.Configure<SMSOptions>(builder.Configuration.GetSection("SMSServiceOptions"));
 
 builder.Services.AddAuthorization();
+
+// Cronos job
+builder.Services.AddCronJob<CronJob>(c =>
+{
+    c.TimeZoneInfo = TimeZoneInfo.Local;
+    c.CronExpression = @"*/5 * * * *";
+});
 
 
 

@@ -3,6 +3,7 @@ using OrganicPortalBackend.Models.Database.Company;
 using OrganicPortalBackend.Models.Database.RegUser;
 using OrganicPortalBackend.Models.Database.Seed;
 using OrganicPortalBackend.Models.Database.Seed.CERT;
+using OrganicPortalBackend.Models.Database.Solana;
 using OrganicPortalBackend.Models.Database.User;
 using OrganicPortalBackend.Models.Database.User.Recovery;
 using OrganicPortalBackend.Models.Database.User.Session;
@@ -46,6 +47,9 @@ namespace OrganicPortalBackend.Models.Database
         public DbSet<CERTModel> CERTTable { get; set; }
         public DbSet<CERTFileModel> CERTFileTable { get; set; }
         public DbSet<CERTAdditionalModel> CERTAdditionalTable { get; set; }
+
+        public DbSet<SolanaSeedModel> SolanaSeedTable { get; set; }
+        public DbSet<SignatureModel> SignatureTablse { get; set; }
         /* */
     }
 }

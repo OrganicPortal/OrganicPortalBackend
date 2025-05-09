@@ -24,6 +24,9 @@ namespace OrganicPortalBackend.Models.Database.Seed
         /* */
         // Чи був запис верифікований лабораторією
         public bool IsVerified { get; set; } = false;
+
+        // Час коли було затверджено сертифікацію
+        public DateTime? VerifiedDate { get; init; } = null;
         /* */
 
 

@@ -53,6 +53,9 @@ namespace OrganicPortalBackend.Models.Database.Seed
         [Key]
         public long Id { get; set; }
         public DateTime CreatedDate { get; init; } = DateTime.UtcNow;
+
+        // Ключ історії записів
+        public string HistoryKey { get; set; } = string.Empty;
         /* */
 
 

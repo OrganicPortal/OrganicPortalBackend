@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OrganicPortalBackend.Models.Database;
 
@@ -11,9 +12,11 @@ using OrganicPortalBackend.Models.Database;
 namespace OrganicPortalBackend.Migrations
 {
     [DbContext(typeof(OrganicContext))]
-    partial class OrganicContextModelSnapshot : ModelSnapshot
+    [Migration("20250509122138_SolanaSeedModel")]
+    partial class SolanaSeedModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,28 +411,6 @@ namespace OrganicPortalBackend.Migrations
                     b.ToTable("UseCERTTable");
                 });
 
-            modelBuilder.Entity("OrganicPortalBackend.Models.Database.Solana.SignatureModel", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Signature")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("SolanaSeedId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SolanaSeedId");
-
-                    b.ToTable("SignatureTablse");
-                });
-
             modelBuilder.Entity("OrganicPortalBackend.Models.Database.Solana.SolanaSeedModel", b =>
                 {
                     b.Property<long>("Id")
@@ -466,6 +447,10 @@ namespace OrganicPortalBackend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SeedType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Signature")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -718,17 +703,6 @@ namespace OrganicPortalBackend.Migrations
                     b.Navigation("Seed");
                 });
 
-            modelBuilder.Entity("OrganicPortalBackend.Models.Database.Solana.SignatureModel", b =>
-                {
-                    b.HasOne("OrganicPortalBackend.Models.Database.Solana.SolanaSeedModel", "SolanaSeed")
-                        .WithMany("SignatureList")
-                        .HasForeignKey("SolanaSeedId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SolanaSeed");
-                });
-
             modelBuilder.Entity("OrganicPortalBackend.Models.Database.Company.CompanyModel", b =>
                 {
                     b.Navigation("ContactsList");
@@ -748,11 +722,6 @@ namespace OrganicPortalBackend.Migrations
             modelBuilder.Entity("OrganicPortalBackend.Models.Database.Seed.UseCERTModel", b =>
                 {
                     b.Navigation("FilesList");
-                });
-
-            modelBuilder.Entity("OrganicPortalBackend.Models.Database.Solana.SolanaSeedModel", b =>
-                {
-                    b.Navigation("SignatureList");
                 });
 
             modelBuilder.Entity("OrganicPortalBackend.Models.Database.User.UserModel", b =>

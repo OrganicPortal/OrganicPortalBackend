@@ -168,14 +168,27 @@ namespace OrganicPortalBackend.Services
             if (await CompanyIsArchivated(companyId))
                 return new ResponseFormatter(message: "Ця компанія заархівована. Насіння неможливо надіслати на сертифікацію.");
 
-            var seed = await _dbContext.SeedTable.FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
+            var seed = await _dbContext.SeedTable
+                .Include(item => item.CERTsList)
+                .FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
+
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
 
             if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
                 return new ResponseFormatter(message: "Це насіння вже перебуває на етапі сертифікації.");
 
-            seed.Status = EnumSeedStatus.AwaitCertificateConfirmation;
+
+            foreach (var cert in seed.CERTsList)
+            {
+                if (cert.CERTId == 1)
+                {
+                    cert.IsVerified = true;
+                    _dbContext.UseCERTTable.Update(cert);
+                }
+            }
+
+            seed.Status = seed.CERTsList.Any(item => item.IsVerified == false) ? EnumSeedStatus.AwaitCertificateConfirmation : EnumSeedStatus.AwaiSigning;
 
             _dbContext.SeedTable.Update(seed);
             await _dbContext.SaveChangesAsync();
