@@ -107,7 +107,7 @@ namespace OrganicPortalBackend.Services
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
 
-            if (seed.Status != EnumSeedStatus.New || seed.Status != EnumSeedStatus.Signed)
+            if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
                 return new ResponseFormatter(message: "Неможливо видалити запис. Доступними для видалення є нові записи й підписані сервісом Solana.");
 
             _dbContext.SeedTable.Remove(seed);
