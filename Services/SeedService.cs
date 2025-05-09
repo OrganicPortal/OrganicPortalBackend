@@ -124,7 +124,7 @@ namespace OrganicPortalBackend.Services
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
 
-            if (seed.Status != EnumSeedStatus.New || seed.Status != EnumSeedStatus.Signed)
+            if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
                 return new ResponseFormatter(message: "Це насіння вже перебуває на етапі сертифікації.");
 
             seed.Status = EnumSeedStatus.AwaitCertificateConfirmation;
