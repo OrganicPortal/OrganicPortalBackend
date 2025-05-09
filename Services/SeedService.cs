@@ -4,6 +4,7 @@ using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Database.Seed;
 using OrganicPortalBackend.Services.Response;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace OrganicPortalBackend.Services
 {
@@ -15,6 +16,7 @@ namespace OrganicPortalBackend.Services
         public Task<ResponseFormatter> EditSeedAsync(long seedId, long companyId, SeedIncomingObj incomingObj);
         public Task<ResponseFormatter> RemoveSeedAsync(long seedId, long companyId);
         public Task<ResponseFormatter> SendSeedToCertificationAsync(long seedId, long companyId);
+        public Task<ResponseFormatter> SeedInfoAsync(long seedId, long companyId);
         public Task<ResponseFormatter> SeedList(long companyId, Paginator paginator);
 
         public Task<ResponseFormatter> AddCERTAsync(long seedId, long companyId, CERTIncomingObj incomingObj);
@@ -97,6 +99,17 @@ namespace OrganicPortalBackend.Services
             await _dbContext.SaveChangesAsync();
 
             return new ResponseFormatter(type: System.Net.HttpStatusCode.OK);
+        }
+        public async Task<ResponseFormatter> SeedInfoAsync(long seedId, long companyId)
+        {
+            var item = await _dbContext.SeedTable
+                .Where(item => item.CompanyId == companyId)
+                .Where(item => item.Id == seedId)
+                .FirstOrDefaultAsync();
+
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                data: item);
         }
         public async Task<ResponseFormatter> RemoveSeedAsync(long seedId, long companyId)
         {

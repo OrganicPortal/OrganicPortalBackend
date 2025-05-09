@@ -39,6 +39,14 @@ namespace OrganicPortalBackend.Controllers
             return (await _seedService.EditSeedAsync(seedId, companyId, incomingObj)).Result;
         }
 
+        [HttpGet("info")]
+        [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
+        // Поверненян інформації про насіння
+        public async Task<IActionResult> GetSeedInfoAsync([FromQuery] long seedId, [FromQuery] long companyId)
+        {
+            return (await _seedService.SeedInfoAsync(seedId, companyId)).Result;
+        }
+
         [HttpDelete("remove")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Видалення насіння
