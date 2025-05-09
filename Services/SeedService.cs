@@ -81,7 +81,7 @@ namespace OrganicPortalBackend.Services
             if (seed == null)
                 return new ResponseFormatter(message: "Такого насіння не існує.");
 
-            if (seed.Status != EnumSeedStatus.New || seed.Status != EnumSeedStatus.Signed)
+            if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
                 return new ResponseFormatter(message: "Неможливо редагувати інформацію про насіння, що перебуває на етапі сертифікації.");
 
             seed.Name = incomingObj.Name;
