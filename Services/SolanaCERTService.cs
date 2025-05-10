@@ -2,6 +2,8 @@
 using CYberCryptor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using OrganicPortalBackend.Controllers;
+using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Database.Seed;
 using OrganicPortalBackend.Models.Database.Solana;
@@ -14,9 +16,24 @@ namespace OrganicPortalBackend.Services
 {
     public interface ISolanaCERT
     {
+        // Користувацькі методи
+        /* */
+        // Метод отримання списку записів в Solana
+        public Task<ResponseFormatter> GetSolanaSeeds(SolanaSeedListIncomingObj incomingObject);
+
+        // Метод відправки насіння на верифікацію
         public Task<ResponseFormatter> SendSeedToSolanaAsync(long seedId);
+
+        // Метод на читання інформації про насіння з Solana
         public Task<ResponseFormatter> SolanaReadsAsync(string pubKey);
+        /* */
+
+
+        // Службові методи
+        /* */
+        // Метод обробки запитів через Cronos
         public Task<int> CronSolana();
+        /* */
     }
     public class SolanaCERTService : ISolanaCERT
     {
@@ -42,6 +59,47 @@ namespace OrganicPortalBackend.Services
             _walletPriKey = configuration.GetSection("SolanaPrivate").Get<string>()!;
         }
 
+        // Користувацькі методи
+        /* */
+        // Метод отримання списку записів в Solana
+        public async Task<ResponseFormatter> GetSolanaSeeds(SolanaSeedListIncomingObj incomingObject)
+        {
+            var query = _dbContext.SolanaSeedTable
+                .Where(item => incomingObject.TreatmentType != -1 ? (int)item.TreatmentType == incomingObject.TreatmentType : true)
+                .OrderByDescending(item => item.CreatedDate)
+                .GroupBy(item => item.HistoryKey);
+
+            var count = await query.CountAsync();
+            var items = await query
+                .Select(item => item
+                    .Select(el => new
+                    {
+                        el.HistoryKey,
+                        el.Key,
+                        el.AccountPublicKey,
+                        el.Name,
+                        el.Variety,
+                        el.SeedType,
+                        el.TreatmentType,
+                        el.CompanyName,
+                        el.CreatedDate
+                    })
+                    .OrderByDescending(el => el.CreatedDate)
+                    .FirstOrDefault())
+                .Skip(incomingObject.Paginator.Skip)
+                .Take(incomingObject.Paginator.PageSize)
+                .ToListAsync();
+
+            return new ResponseFormatter(
+                type: System.Net.HttpStatusCode.OK,
+                data: new
+                {
+                    Count = count,
+                    Items = items
+                });
+        }
+
+        // Метод відправки насіння на верифікацію
         public async Task<ResponseFormatter> SolanaReadsAsync(string pubKey)
         {
             // Отримуємо інформацію з облікового запсиу
@@ -59,6 +117,8 @@ namespace OrganicPortalBackend.Services
                 type: System.Net.HttpStatusCode.OK,
                 data: obj);
         }
+
+        // Метод на читання інформації про насіння з Solana
         public async Task<ResponseFormatter> SendSeedToSolanaAsync(long seedId)
         {
             // Отримуємо насіння
@@ -181,6 +241,12 @@ namespace OrganicPortalBackend.Services
                     Key = solanadb.Key
                 });
         }
+        /* */
+
+
+        // Службові методи
+        /* */
+        // Метод обробки запитів через Cronos
         public async Task<int> CronSolana()
         {
             var seeds = await _dbContext.SeedTable
@@ -204,8 +270,12 @@ namespace OrganicPortalBackend.Services
 
             return seeds.Count();
         }
+        /* */
     }
 
+    // Об'єкти записів в Solana
+    /* */
+    // Загальний обєкт в Solana
     public class SolanaObj
     {
         // Ключ елемента в базі даних
@@ -229,14 +299,18 @@ namespace OrganicPortalBackend.Services
         // Інформація про сертифікацію насінн
         public ICollection<SolanaCERTInfoObj> CERTList { get; set; } = new List<SolanaCERTInfoObj>();
     }
+
+    // Інформація про видавця в Solana
     public class SolanaPublisherInfoObj
     {
         // Ім'я сервісу
         public string Name { get; set; } = "Organic Portal";
 
         // Посилання на сайт
-        public string Href { get; set; } = "http://organicportal.in.ua/";
+        public string Href { get; set; } = "organicportal.in.ua";
     }
+
+    // Інформація про насіння в Solana
     public class SolanaSeedInfoObj
     {
         // Узагальнене ім'я культури
@@ -283,6 +357,8 @@ namespace OrganicPortalBackend.Services
         // #exemple::~1176,47 г
         public double AverageWeightThousandSeeds { get; set; } = 0;
     }
+
+    // Інформація про компанію в Solana
     public class SolanaCompanyInfoObj
     {
         // Ім'я установи (повна назва)
@@ -304,6 +380,8 @@ namespace OrganicPortalBackend.Services
         //// Контактна інформація пр окомпанію
         //public List<string> ContactInfo { get; set; } = new List<string>();
     }
+
+    // Інформація про сертифікати в Solana
     public class SolanaCERTInfoObj
     {
         // Назва сертифікату
@@ -329,4 +407,5 @@ namespace OrganicPortalBackend.Services
         // Дата верифікації сертифікату
         public DateTime? CreatedDate { get; init; } = null;
     }
+    /* */
 }

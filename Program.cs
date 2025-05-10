@@ -37,7 +37,6 @@ builder.Services.AddCors(options =>
                       });
 });
 
-
 builder.Services.AddDbContextFactory<OrganicContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevConnection")),
     ServiceLifetime.Transient

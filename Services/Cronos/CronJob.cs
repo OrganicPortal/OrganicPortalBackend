@@ -19,21 +19,16 @@
 
         public override Task DoWork(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Check Job::");
             using (var scope = _serviceProvider.CreateScope())
             {
                 // Checks if use developer mode.
                 var webhost = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-                //if (!webhost.IsDevelopment())
-                //{
+                if (!webhost.IsDevelopment())
+                {
                     var service = scope.ServiceProvider.GetRequiredService<ISolanaCERT>();
                     var res = service.CronSolana().Result;
-
-                    _logger.LogInformation("Cron check::" + res);
-                //}
+                }
             }
-
-            _logger.LogInformation("Cron complete");
             return Task.CompletedTask;
         }
 
