@@ -4,7 +4,6 @@ using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Database.Seed;
 using OrganicPortalBackend.Services.Response;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace OrganicPortalBackend.Services
 {

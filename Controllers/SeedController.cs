@@ -26,73 +26,46 @@ namespace OrganicPortalBackend.Controllers
         [HttpPost("new")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Створення нового насіння
-        public async Task<IActionResult> PostNewSeedAsync([FromQuery] long companyId, SeedIncomingObj incomingObj)
-        {
-            return (await _seedService.NewSeedAsync(companyId, incomingObj)).Result;
-        }
+        public async Task<IActionResult> PostNewSeedAsync([FromQuery] long companyId, SeedIncomingObj incomingObj) => (await _seedService.NewSeedAsync(companyId, incomingObj)).Result;
 
         [HttpPatch("edit")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Редагування інформації про насіння
-        public async Task<IActionResult> PatchEditSeedAsync([FromQuery] long seedId, [FromQuery] long companyId, SeedIncomingObj incomingObj)
-        {
-            return (await _seedService.EditSeedAsync(seedId, companyId, incomingObj)).Result;
-        }
+        public async Task<IActionResult> PatchEditSeedAsync([FromQuery] long seedId, [FromQuery] long companyId, SeedIncomingObj incomingObj) => (await _seedService.EditSeedAsync(seedId, companyId, incomingObj)).Result;
 
         [HttpGet("info")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Поверненян інформації про насіння
-        public async Task<IActionResult> GetSeedInfoAsync([FromQuery] long seedId, [FromQuery] long companyId)
-        {
-            return (await _seedService.SeedInfoAsync(seedId, companyId)).Result;
-        }
+        public async Task<IActionResult> GetSeedInfoAsync([FromQuery] long seedId, [FromQuery] long companyId) => (await _seedService.SeedInfoAsync(seedId, companyId)).Result;
 
         [HttpDelete("remove")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Видалення насіння
-        public async Task<IActionResult> DeleteRemoveSeedAsync([FromQuery] long seedId, [FromQuery] long companyId)
-        {
-            return (await _seedService.RemoveSeedAsync(seedId, companyId)).Result;
-        }
+        public async Task<IActionResult> DeleteRemoveSeedAsync([FromQuery] long seedId, [FromQuery] long companyId) => (await _seedService.RemoveSeedAsync(seedId, companyId)).Result;
 
         [HttpPost("list")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Відправка насіння на сертифікацію сервісом
-        public async Task<IActionResult> GetSeedList([FromQuery] long companyId, Paginator paginator)
-        {
-            return (await _seedService.SeedList(companyId, paginator)).Result;
-        }
+        public async Task<IActionResult> GetSeedList([FromQuery] long companyId, Paginator paginator) => (await _seedService.SeedList(companyId, paginator)).Result;
 
         [HttpGet("send-certifications")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Відправка насіння на сертифікацію сервісом
-        public async Task<IActionResult> GetSendSeedToCertificationAsync([FromQuery] long seedId, [FromQuery] long companyId)
-        {
-            return (await _seedService.SendSeedToCertificationAsync(seedId, companyId)).Result;
-        }
+        public async Task<IActionResult> GetSendSeedToCertificationAsync([FromQuery] long seedId, [FromQuery] long companyId) => (await _seedService.SendSeedToCertificationAsync(seedId, companyId)).Result;
 
 
         [HttpPost("certs/add")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Додавання сертифікату до насіння
-        public async Task<IActionResult> PostAddCERTAsync([FromQuery] long seedId, [FromQuery] long companyId, CERTIncomingObj incomingObj)
-        {
-            return (await _seedService.AddCERTAsync(seedId, companyId, incomingObj)).Result;
-        }
+        public async Task<IActionResult> PostAddCERTAsync([FromQuery] long seedId, [FromQuery] long companyId, CERTIncomingObj incomingObj) => (await _seedService.AddCERTAsync(seedId, companyId, incomingObj)).Result;
 
         [HttpDelete("certs/remove")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
         // Видалення сертифікату з насіння
-        public async Task<IActionResult> DeleteRemoveCERTAsync([FromQuery] long UseCERTId, [FromQuery] long companyId)
-        {
-            return (await _seedService.RemoveCERTAsync(UseCERTId, companyId)).Result;
-        }
+        public async Task<IActionResult> DeleteRemoveCERTAsync([FromQuery] long UseCERTId, [FromQuery] long companyId) => (await _seedService.RemoveCERTAsync(UseCERTId, companyId)).Result;
 
         [HttpGet("certs")]
-        public async Task<IActionResult> GetCERTList()
-        {
-            return (await _seedService.CERTList()).Result;
-        }
+        public async Task<IActionResult> GetCERTList() => (await _seedService.CERTList()).Result;
         /* */
     }
 

@@ -13,6 +13,7 @@ namespace OrganicPortalBackend.Controllers
             _solanaCERT = solanaCERT;
         }
 
+
         //[HttpGet("confirmations")]
         //// Надсилає запит на формування довіреного запису про насіння
         //public async Task<IActionResult> SolanaConfirmation([FromQuery] long seedId, [FromQuery] long companyId) => (await _solanaCERT.SendSeedToSolanaAsync(seedId)).Result;

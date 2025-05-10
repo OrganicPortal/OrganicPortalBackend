@@ -540,10 +540,16 @@ namespace OrganicPortalBackend.Services
         }
         public async Task<ResponseFormatter> CompanyAsync(long companyId)
         {
+            if (companyId > 0)
+                return new ResponseFormatter();
+
             return await CompanyInfoAsync(companyId);
         }
         public async Task<ResponseFormatter> ChangeTrustCompanyAsync(long companyId, EnumTrustStatus trustStatus)
         {
+            if (companyId > 0)
+                return new ResponseFormatter();
+
             var company = await _dbContext.CompanyTable.FirstOrDefaultAsync(item => item.Id == companyId);
 
             if (company != null)

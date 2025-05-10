@@ -18,21 +18,16 @@ namespace OrganicPortalBackend.Controllers
             _userService = userService;
         }
 
+
         // Користувацькі ендпойнти
         /* */
         [HttpGet("my-profile")]
         // Дані профілю користувача
-        public async Task<IActionResult> GetMyCompanyAsync()
-        {
-            return (await _userService.MyProfileAsync(getToken)).Result;
-        }
+        public async Task<IActionResult> GetMyCompanyAsync() => (await _userService.MyProfileAsync(getToken)).Result;
 
         [HttpPatch("my-profiles/edits")]
         // Редагуванні інформації профілю
-        public async Task<IActionResult> PatchMyProfileAsync(EditUserProfileIncomingObj incomingObj)
-        {
-            return (await _userService.EditMyProfileAsync(incomingObj, getToken)).Result;
-        }
+        public async Task<IActionResult> PatchMyProfileAsync(EditUserProfileIncomingObj incomingObj) => (await _userService.EditMyProfileAsync(incomingObj, getToken)).Result;
         /* */
     }
 

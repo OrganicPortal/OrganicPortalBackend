@@ -17,54 +17,30 @@ namespace OrganicPortalBackend.Controllers
 
 
         [HttpPost("sign-in")]
-        public async Task<IActionResult> PostSignInAsync(SignInIncomingObj incomingObj)
-        {
-            return (await _authorizationService.SignInAsync(incomingObj)).Result;
-        }
+        public async Task<IActionResult> PostSignInAsync(SignInIncomingObj incomingObj) => (await _authorizationService.SignInAsync(incomingObj)).Result;
 
         [HttpGet("sign-out")]
-        public async Task<IActionResult> GetSignOutAsync()
-        {
-            return (await _authorizationService.SignOutAsync(getToken)).Result;
-        }
+        public async Task<IActionResult> GetSignOutAsync() => (await _authorizationService.SignOutAsync(getToken)).Result;
 
         [HttpPost("sign-up")]
-        public async Task<IActionResult> PostSignUpAsync(SignUpIncomingObj incomingObj)
-        {
-            return (await _authorizationService.SignUpAsync(incomingObj, getIp)).Result;
-        }
+        public async Task<IActionResult> PostSignUpAsync(SignUpIncomingObj incomingObj) => (await _authorizationService.SignUpAsync(incomingObj, getIp)).Result;
 
         [HttpPost("sign-up/verif")]
-        public async Task<IActionResult> PostVerifySignUpAsync(SignUpVerifIncomingObj incomingObj)
-        {
-            return (await _authorizationService.VerifySignUpAsync(incomingObj.Code, getRegToken, getIp)).Result;
-        }
+        public async Task<IActionResult> PostVerifySignUpAsync(SignUpVerifIncomingObj incomingObj) => (await _authorizationService.VerifySignUpAsync(incomingObj.Code, getRegToken, getIp)).Result;
 
         [HttpGet("sign-up/retry")]
-        public async Task<IActionResult> GetRetryVerifSMSAsync()
-        {
-            return (await _authorizationService.RetryVerifSMSAsync(getRegToken, getIp)).Result;
-        }
+        public async Task<IActionResult> GetRetryVerifSMSAsync() => (await _authorizationService.RetryVerifSMSAsync(getRegToken, getIp)).Result;
 
         [HttpGet("get-roles")]
         [Authorized]
-        public async Task<IActionResult> GetUserRolesAsync()
-        {
-            return (await _authorizationService.UserRoles(getToken)).Result;
-        }
+        public async Task<IActionResult> GetUserRolesAsync() => (await _authorizationService.UserRoles(getToken)).Result;
 
 
         [HttpPost("recovery/init")]
-        public async Task<IActionResult> PostInitRecoveryAsync(InitRecoveryIncomingObj incomingObj)
-        {
-            return (await _authorizationService.InitRecoveryAsync(incomingObj)).Result;
-        }
+        public async Task<IActionResult> PostInitRecoveryAsync(InitRecoveryIncomingObj incomingObj) => (await _authorizationService.InitRecoveryAsync(incomingObj)).Result;
 
         [HttpPost("recovery/new-password")]
-        public async Task<IActionResult> PostRecoveryAsync(RecoveryIncomingObj incomingObj)
-        {
-            return (await _authorizationService.RecoveryAsync(incomingObj, getRecoveryToken)).Result;
-        }
+        public async Task<IActionResult> PostRecoveryAsync(RecoveryIncomingObj incomingObj) => (await _authorizationService.RecoveryAsync(incomingObj, getRecoveryToken)).Result;
 
 
         private string getIp { get { return "127.0.0.1"; } }
