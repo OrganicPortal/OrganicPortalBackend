@@ -29,6 +29,10 @@ namespace OrganicPortalBackend.Controllers
         [HttpPost("list")]
         // Ендпойнт на отримання верифікованого списку з насінням
         public async Task<IActionResult> PostSolanaSeeds(SolanaSeedListIncomingObj incomingObj) => (await _solanaCERT.GetSolanaSeeds(incomingObj)).Result;
+
+        [HttpPost("history")]
+        // Ендпойнт на отримання історії про верифіковане насіння
+        public async Task<IActionResult> PostOneSolanaSeed(SolanaSeedIncomingObj incomingObj) => (await _solanaCERT.OneSolanaSeed(incomingObj)).Result;
         /* */
     }
 
@@ -50,6 +54,20 @@ namespace OrganicPortalBackend.Controllers
         [AllowedValues(-1, 0, 1, 2)]
         // Оброблене чи не оброблене насіння
         public int TreatmentType { get; set; } = -1;
+    }
+
+    // Об'єкт отримання інформації про обране насіння в Solana
+    public class SolanaSeedIncomingObj
+    {
+        [Required]
+        [Range(1, long.MaxValue)]
+        // Ідентифікатор запису в Solana
+        public long SolanaSeedId { get; set; } = 0;
+
+        [Required]
+        [MinLength(1)]
+        // Ідентифікатор запсиу в історії
+        public string HistoryKey { get; set; } = string.Empty;
     }
     /* */
 }

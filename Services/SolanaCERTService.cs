@@ -25,6 +25,9 @@ namespace OrganicPortalBackend.Services
         // Метод відправки насіння на верифікацію
         public Task<ResponseFormatter> SendSeedToSolanaAsync(long seedId);
 
+        // Метод отримання історії насіння
+        public Task<ResponseFormatter> OneSolanaSeed(SolanaSeedIncomingObj incomingObject);
+
         // Метод на читання інформації про насіння з Solana
         public Task<ResponseFormatter> SolanaReadsAsync(string pubKey);
         /* */
@@ -86,7 +89,7 @@ namespace OrganicPortalBackend.Services
                         el.CompanyName,
                         el.CreatedDate,
 
-                        QrBase64 = el.QrCode.QrBase64 ?? ""
+                        QrBase64 = el.QrCode != null ? el.QrCode.QrBase64 : ""
                     })
                     .OrderByDescending(el => el.CreatedDate)
                     .FirstOrDefault())
@@ -101,6 +104,54 @@ namespace OrganicPortalBackend.Services
                     Count = count,
                     Items = items
                 });
+        }
+
+        // Метод отримання запису в Solana
+        public async Task<ResponseFormatter> OneSolanaSeed(SolanaSeedIncomingObj incomingObject)
+        {
+            var values = await _dbContext.SolanaSeedTable
+                .Include(item => item.QrCode)
+                .Where(item => item.Id == incomingObject.SolanaSeedId)
+                .Where(item => item.HistoryKey == incomingObject.HistoryKey)
+
+                .Select(el => new
+                {
+                    el.Id,
+                    el.HistoryKey,
+                    el.AccountPublicKey,
+                    el.Name,
+                    el.Variety,
+                    el.SeedType,
+                    el.TreatmentType,
+                    el.CompanyName,
+                    el.CreatedDate,
+
+                    QrBase64 = el.QrCode != null ? el.QrCode.QrBase64 : ""
+                })
+                .OrderByDescending(item => item.CreatedDate)
+                .ToListAsync();
+
+            if (values.Count() > 0)
+            {
+                string pubKey = values[0].AccountPublicKey;
+
+                // Отримуємо інформацію з облікового запсиу
+                var res = await _solanaService.ReadAccountInformationAsync(new PublicKey(pubKey));
+
+                // Повертаємо помилку якщо Solana повернула помилку
+                if (!res.Item1)
+                    return new ResponseFormatter(message: "Сталася помилка, не вдаєтсья отримати інформацію. Спробуйте пізніше");
+
+                return new ResponseFormatter(
+                    type: System.Net.HttpStatusCode.OK,
+                    data: new
+                    {
+                        Last = JsonSerializer.Deserialize<SolanaObj>(res.Item2),
+                        History = values
+                    });
+            }
+
+            return new ResponseFormatter(message: "Запису не існує.");
         }
 
         // Метод відправки насіння на верифікацію
@@ -227,11 +278,7 @@ namespace OrganicPortalBackend.Services
 
                 QrCode = new SolanaQrCodeModel
                 {
-                    QrBase64 = GenerateQrCode(new SolanaQrCodeInfoOby
-                    {
-                        Key = resultInfo.Account.PublicKey.Key,
-                        Href = "organicportal.in.ua/qr-scans"
-                    })
+                    QrBase64 = GenerateQrCode("organicportal.in.ua/qr-scans?key=" + resultInfo.Account.PublicKey.Key)
                 }
             };
 
@@ -282,11 +329,10 @@ namespace OrganicPortalBackend.Services
         }
 
         // Генерування Qr коду
-        public string GenerateQrCode(SolanaQrCodeInfoOby obj)
+        public string GenerateQrCode(string str)
         {
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            string data = JsonSerializer.Serialize(obj);
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(data, QRCodeGenerator.ECCLevel.Q);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(str, QRCodeGenerator.ECCLevel.Q);
             PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
             byte[] qrCodeAsPngByteArr = qrCode.GetGraphic(5);
             return Convert.ToBase64String(qrCodeAsPngByteArr, 0, qrCodeAsPngByteArr.Length);
@@ -427,19 +473,6 @@ namespace OrganicPortalBackend.Services
 
         // Дата верифікації сертифікату
         public DateTime? CreatedDate { get; init; } = null;
-    }
-
-    // Інформація в QR коді Solana
-    public class SolanaQrCodeInfoOby
-    {
-        // Посилання на акаунт Solana
-        public string Key { get; set; } = string.Empty;
-
-        // Посилання на сайт для перевірки
-        public string Href { get; set; } = string.Empty;
-
-        // Дата видачі токена
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
     /* */
 }
