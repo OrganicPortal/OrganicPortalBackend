@@ -111,7 +111,7 @@ namespace OrganicPortalBackend.Services
         {
             var values = await _dbContext.SolanaSeedTable
                 .Include(item => item.QrCode)
-                .Where(item => item.Id == incomingObject.SolanaSeedId)
+                //.Where(item => item.Id == incomingObject.SolanaSeedId)
                 .Where(item => item.HistoryKey == incomingObject.HistoryKey)
 
                 .Select(el => new

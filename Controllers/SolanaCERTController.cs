@@ -59,10 +59,10 @@ namespace OrganicPortalBackend.Controllers
     // Об'єкт отримання інформації про обране насіння в Solana
     public class SolanaSeedIncomingObj
     {
-        [Required]
-        [Range(1, long.MaxValue)]
-        // Ідентифікатор запису в Solana
-        public long SolanaSeedId { get; set; } = 0;
+        //[Required]
+        //[Range(1, long.MaxValue)]
+        //// Ідентифікатор запису в Solana
+        //public long SolanaSeedId { get; set; } = 0;
 
         [Required]
         [MinLength(1)]
