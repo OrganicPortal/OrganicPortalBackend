@@ -9,6 +9,7 @@ using OrganicPortalBackend.Models.Database.Seed;
 using OrganicPortalBackend.Models.Database.Solana;
 using OrganicPortalBackend.Models.Options;
 using OrganicPortalBackend.Services.Response;
+using QRCoder;
 using Solnet.Wallet;
 using System.Text.Json;
 
@@ -65,6 +66,7 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> GetSolanaSeeds(SolanaSeedListIncomingObj incomingObject)
         {
             var query = _dbContext.SolanaSeedTable
+                .Include(item => item.QrCode)
                 .Where(item => incomingObject.TreatmentType != -1 ? (int)item.TreatmentType == incomingObject.TreatmentType : true)
                 .OrderByDescending(item => item.CreatedDate)
                 .GroupBy(item => item.HistoryKey);
@@ -74,15 +76,17 @@ namespace OrganicPortalBackend.Services
                 .Select(item => item
                     .Select(el => new
                     {
+                        el.Id,
                         el.HistoryKey,
-                        el.Key,
                         el.AccountPublicKey,
                         el.Name,
                         el.Variety,
                         el.SeedType,
                         el.TreatmentType,
                         el.CompanyName,
-                        el.CreatedDate
+                        el.CreatedDate,
+
+                        QrBase64 = el.QrCode.QrBase64 ?? ""
                     })
                     .OrderByDescending(el => el.CreatedDate)
                     .FirstOrDefault())
@@ -144,7 +148,6 @@ namespace OrganicPortalBackend.Services
             // Формуємо об'єкт
             SolanaObj solObj = new SolanaObj
             {
-                Key = cyberFormatter.EncryptMethod(seed.Id.ToString(), _encryptOptions.SolanaKey),
                 HistoryKey = seed.HistoryKey,
                 PublisherInfo = new SolanaPublisherInfoObj(),
 
@@ -204,7 +207,6 @@ namespace OrganicPortalBackend.Services
             SolanaSeedModel solanadb = new SolanaSeedModel
             {
                 HistoryKey = solObj.HistoryKey,
-                Key = solObj.Key,
 
                 Name = solObj.SeedInfo.Name,
                 Variety = solObj.SeedInfo.Variety,
@@ -221,7 +223,16 @@ namespace OrganicPortalBackend.Services
                 {
                     Signature = item
                 })
-                .ToList()
+                .ToList(),
+
+                QrCode = new SolanaQrCodeModel
+                {
+                    QrBase64 = GenerateQrCode(new SolanaQrCodeInfoOby
+                    {
+                        Key = resultInfo.Account.PublicKey.Key,
+                        Href = "organicportal.in.ua/qr-scans"
+                    })
+                }
             };
 
             // Зберігаємо зміни та оновлені статуси
@@ -237,8 +248,7 @@ namespace OrganicPortalBackend.Services
                 type: System.Net.HttpStatusCode.OK,
                 data: new
                 {
-                    Id = solanadb.Id,
-                    Key = solanadb.Key
+                    Id = solanadb.Id
                 });
         }
         /* */
@@ -269,6 +279,17 @@ namespace OrganicPortalBackend.Services
             }
 
             return seeds.Count();
+        }
+
+        // Генерування Qr коду
+        public string GenerateQrCode(SolanaQrCodeInfoOby obj)
+        {
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            string data = JsonSerializer.Serialize(obj);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(data, QRCodeGenerator.ECCLevel.Q);
+            PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
+            byte[] qrCodeAsPngByteArr = qrCode.GetGraphic(5);
+            return Convert.ToBase64String(qrCodeAsPngByteArr, 0, qrCodeAsPngByteArr.Length);
         }
         /* */
     }
@@ -406,6 +427,19 @@ namespace OrganicPortalBackend.Services
 
         // Дата верифікації сертифікату
         public DateTime? CreatedDate { get; init; } = null;
+    }
+
+    // Інформація в QR коді Solana
+    public class SolanaQrCodeInfoOby
+    {
+        // Посилання на акаунт Solana
+        public string Key { get; set; } = string.Empty;
+
+        // Посилання на сайт для перевірки
+        public string Href { get; set; } = string.Empty;
+
+        // Дата видачі токена
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
     /* */
 }

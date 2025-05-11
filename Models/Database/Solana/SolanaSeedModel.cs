@@ -12,9 +12,6 @@ namespace OrganicPortalBackend.Models.Database.Solana
         public DateTime CreatedDate { get; init; } = DateTime.UtcNow;
 
         // Ключ історії записів
-        public string Key { get; set; } = string.Empty;
-
-        // Ключ історії записів
         public string HistoryKey { get; set; } = string.Empty;
         /* */
 
@@ -54,6 +51,13 @@ namespace OrganicPortalBackend.Models.Database.Solana
         // Ім'я установи (повна назва)
         // #exemple::ТМ Яскрава
         public string CompanyName { get; set; } = string.Empty;
+        /* */
+
+
+        // Список зв'язків в таблицях бд
+        /* */
+        // QR код
+        public SolanaQrCodeModel QrCode { get; set; }
         /* */
     }
 }

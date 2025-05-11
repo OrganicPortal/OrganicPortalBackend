@@ -49,6 +49,7 @@ namespace OrganicPortalBackend.Models.Database
         public DbSet<CERTAdditionalModel> CERTAdditionalTable { get; set; }
 
         public DbSet<SolanaSeedModel> SolanaSeedTable { get; set; }
+        public DbSet<SolanaQrCodeModel> SolanaQrCodeTable { get; set; }
         public DbSet<SignatureModel> SignatureTablse { get; set; }
         /* */
     }
