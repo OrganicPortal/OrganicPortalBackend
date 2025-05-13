@@ -3,7 +3,6 @@ using CYberCryptor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OrganicPortalBackend.Controllers;
-using OrganicPortalBackend.Models;
 using OrganicPortalBackend.Models.Database;
 using OrganicPortalBackend.Models.Database.Seed;
 using OrganicPortalBackend.Models.Database.Solana;
@@ -12,6 +11,7 @@ using OrganicPortalBackend.Services.Response;
 using QRCoder;
 using Solnet.Wallet;
 using System.Text.Json;
+using System.Web;
 
 namespace OrganicPortalBackend.Services
 {
@@ -157,6 +157,10 @@ namespace OrganicPortalBackend.Services
         // Метод відправки насіння на верифікацію
         public async Task<ResponseFormatter> SolanaReadsAsync(string pubKey)
         {
+            // Перевіряємо чи такий код є в системі
+            if (!await _dbContext.SolanaSeedTable.AnyAsync(item => EF.Functions.Collate(item.AccountPublicKey, "SQL_Latin1_General_CP1_CS_AS") == pubKey))
+                return new ResponseFormatter(message: "Такого запису не існує в системі Organic Portal.");
+
             // Отримуємо інформацію з облікового запсиу
             var res = await _solanaService.ReadAccountInformationAsync(new PublicKey(pubKey));
 
@@ -278,7 +282,7 @@ namespace OrganicPortalBackend.Services
 
                 QrCode = new SolanaQrCodeModel
                 {
-                    QrBase64 = GenerateQrCode("organicportal.in.ua/qr-scans?key=" + resultInfo.Account.PublicKey.Key)
+                    QrBase64 = GenerateQrCode(HttpUtility.UrlEncode("organicportal.in.ua/qr-scans?key=" + resultInfo.Account.PublicKey.Key))
                 }
             };
 
