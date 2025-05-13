@@ -282,7 +282,7 @@ namespace OrganicPortalBackend.Services
 
                 QrCode = new SolanaQrCodeModel
                 {
-                    QrBase64 = GenerateQrCode(HttpUtility.UrlEncode("organicportal.in.ua/qr-scans?key=" + resultInfo.Account.PublicKey.Key))
+                    QrBase64 = GenerateQrCode("organic.in.ua/qr-info?key=" + resultInfo.Account.PublicKey.Key)
                 }
             };
 
