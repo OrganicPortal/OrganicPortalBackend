@@ -247,7 +247,7 @@ namespace OrganicPortalBackend.Services
             _dbContext.RegTable.Add(regModel);
             await _dbContext.SaveChangesAsync();
 
-            await SendSMSCode("Registration confirmation code, on the website organicportal.in.ua: " + regModel.Code, phone);
+            await SendSMSCode("Код підтвердження реєстрації сервісу OrganicPortal: " + regModel.Code, phone);
 
             // Response token
             return new ResponseFormatter(type: HttpStatusCode.OK,
@@ -354,7 +354,7 @@ namespace OrganicPortalBackend.Services
             _dbContext.RegTable.Update(dbToken);
             await _dbContext.SaveChangesAsync();
 
-            await SendSMSCode(code, cyberFormatter.DecryptMethod(dbToken.Phone, _encryptOptions.PhoneKey));
+            await SendSMSCode("Код підтвердження реєстрації сервісу OrganicPortal: " + code, cyberFormatter.DecryptMethod(dbToken.Phone, _encryptOptions.PhoneKey));
 
             return new ResponseFormatter(type: HttpStatusCode.OK);
         }
@@ -436,7 +436,7 @@ namespace OrganicPortalBackend.Services
 
 
                 //await SendSMSCode("Код скидання паролю: " + code, phone);
-                await SendSMSCode("Password reset code: " + code, phone);
+                await SendSMSCode("Код скидання паролю: " + code, phone);
             }
 
             // Response token
