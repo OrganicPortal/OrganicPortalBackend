@@ -140,7 +140,8 @@ namespace OrganicPortalBackend.Services
 
                 // Повертаємо помилку якщо Solana повернула помилку
                 if (!res.Item1)
-                    return new ResponseFormatter(message: "Сталася помилка, не вдаєтсья отримати інформацію. Спробуйте пізніше");
+                    //return new ResponseFormatter(message: "Сталася помилка, не вдаєтсья отримати інформацію. Спробуйте пізніше");
+                    return new ResponseFormatter(message: "An error occurred, unable to retrieve information. Please try again later.");
 
                 return new ResponseFormatter(
                     type: System.Net.HttpStatusCode.OK,
@@ -151,7 +152,8 @@ namespace OrganicPortalBackend.Services
                     });
             }
 
-            return new ResponseFormatter(message: "Запису не існує.");
+            //return new ResponseFormatter(message: "Запису не існує.");
+            return new ResponseFormatter(message: "The record does not exist.");
         }
 
         // Метод відправки насіння на верифікацію
@@ -159,14 +161,16 @@ namespace OrganicPortalBackend.Services
         {
             // Перевіряємо чи такий код є в системі
             if (!await _dbContext.SolanaSeedTable.AnyAsync(item => EF.Functions.Collate(item.AccountPublicKey, "SQL_Latin1_General_CP1_CS_AS") == pubKey))
-                return new ResponseFormatter(message: "Такого запису не існує в системі Organic Portal.");
+                //return new ResponseFormatter(message: "Такого запису не існує в системі Organic Portal.");
+                return new ResponseFormatter(message: "Such a record does not exist in the Organic Portal system.");
 
             // Отримуємо інформацію з облікового запсиу
             var res = await _solanaService.ReadAccountInformationAsync(new PublicKey(pubKey));
 
             // Повертаємо помилку якщо Solana повернула помилку
             if (!res.Item1)
-                return new ResponseFormatter(message: "Сталася помилка, не вдаєтсья отримати інформацію. Спробуйте пізніше");
+                //return new ResponseFormatter(message: "Сталася помилка, не вдається отримати інформацію. Спробуйте пізніше");
+                return new ResponseFormatter(message: "An error occurred, unable to retrieve information. Please try again later.");
 
             // Десеріалізовуємо дані
             var obj = JsonSerializer.Deserialize<SolanaObj>(res.Item2);

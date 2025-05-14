@@ -49,7 +49,8 @@ namespace OrganicPortalBackend.Services
             long userId = _tokenService.GetUserIdFromLoginToken(token);
 
             if (userId != incomingObj.UserId)
-                return new ResponseFormatter(message: "Ідентифікатор користувача не правильний.");
+                //return new ResponseFormatter(message: "Ідентифікатор користувача не правильний.");
+                return new ResponseFormatter(message: "The user ID is incorrect.");
 
             return await EditProfileAsync(incomingObj, token);
         }
@@ -109,7 +110,8 @@ namespace OrganicPortalBackend.Services
             var user = await _dbContext.UserTable.FirstOrDefaultAsync(item => item.Id == incomingObj.UserId);
 
             if (user == null)
-                return new ResponseFormatter(message: "Користувача не існує.");
+                //return new ResponseFormatter(message: "Користувача не існує.");
+                return new ResponseFormatter(message: "The user does not exist.");
 
             user.FirstName = incomingObj.FirstName;
             user.MiddleName = incomingObj.MiddleName;
@@ -118,7 +120,8 @@ namespace OrganicPortalBackend.Services
             _dbContext.UserTable.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Дані успішно відредаговано");
+            //return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Дані успішно відредаговано");
+            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Data successfully edited");
         }
         /* */
     }

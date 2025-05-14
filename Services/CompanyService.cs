@@ -49,7 +49,8 @@ namespace OrganicPortalBackend.Services
             bool isCompany = await _dbContext.CompanyTable.AnyAsync(item => item.RegistrationNumber == incomingObj.RegistrationNumber);
 
             if (isCompany)
-                return new ResponseFormatter(message: string.Format("Компанія з кодом \"{0}\" вже існує в системі. Якщо ви її власник, та не реєстрували її в системі, зверність в службу технічної підтримки.", incomingObj.RegistrationNumber));
+                //return new ResponseFormatter(message: string.Format("Компанія з кодом \"{0}\" вже існує в системі. Якщо ви її власник, та не реєстрували її в системі, зверність в службу технічної підтримки.", incomingObj.RegistrationNumber));
+                return new ResponseFormatter(message: string.Format("Company with code \"{0}\" already exists in the system. If you are its owner and have not registered it in the system, please contact the technical support service.", incomingObj.RegistrationNumber));
 
             // Формуємо запис
             CompanyModel company = new CompanyModel
@@ -105,7 +106,8 @@ namespace OrganicPortalBackend.Services
                 data: new
                 {
                     CompanyId = company.Id
-                }, message: "Компанію успішно створено");
+                    //}, message: "Компанію успішно створено");
+                }, message: "The company was successfully established");
         }
         public async Task<ResponseFormatter> EditCompanyAsync(long companyId, EditCompanyIncomingObj incomingObj)
         {
@@ -122,7 +124,8 @@ namespace OrganicPortalBackend.Services
                 return new ResponseFormatter();
 
             if (company.isArchivated)
-                return new ResponseFormatter(message: "Ця компанія заархівована. Редагування заблоковане.");
+                //return new ResponseFormatter(message: "Ця компанія заархівована. Редагування заблоковане.");
+                return new ResponseFormatter(message: "This company is archived. Editing is locked.");
 
             company.Name = incomingObj.Name;
             company.Description = incomingObj.Description;
@@ -221,7 +224,8 @@ namespace OrganicPortalBackend.Services
                 }
                 catch
                 {
-                    return new ResponseFormatter(message: "Один з видів діяльності вказаний не корректно.");
+                    //return new ResponseFormatter(message: "Один з видів діяльності вказаний не корректно.");
+                    return new ResponseFormatter(message: "One of the activities is specified incorrectly.");
                 }
             }
 
@@ -280,7 +284,8 @@ namespace OrganicPortalBackend.Services
 
             return new ResponseFormatter(
                 type: System.Net.HttpStatusCode.OK,
-                data: responseCompany, message: "Успішно відредаговано");
+                //data: responseCompany, message: "Успішно відредаговано");
+                data: responseCompany, message: "Successfully edited");
         }
 
         public async Task<ResponseFormatter> MyCompanyAsync(string token)
@@ -379,7 +384,8 @@ namespace OrganicPortalBackend.Services
                 return new ResponseFormatter();
 
             if (company.isArchivated)
-                return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, message: "Компанію було заархівовано. Для розархівування, зверніться до служби підтримки.");
+                //return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, message: "Компанію було заархівовано. Для розархівування, зверніться до служби підтримки.");
+                return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, message: "The company has been archived. To unarchive it, please contact support.");
 
             company.isArchivated = true;
             company.ArchivationDate = DateTime.UtcNow;
@@ -387,7 +393,8 @@ namespace OrganicPortalBackend.Services
             _dbContext.CompanyTable.Update(company);
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, message: "Компанію було заархівовано. Для розархівування, зверніться до служби підтримки.");
+            //return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, message: "Компанію було заархівовано. Для розархівування, зверніться до служби підтримки.");
+            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, message: "The company has been archived. To unarchive it, please contact support.");
         }
         public async Task<ResponseFormatter> CheckArchivatedCompanyAsync(long companyId)
         {
@@ -434,7 +441,8 @@ namespace OrganicPortalBackend.Services
             if (dbContact != null)
                 return new ResponseFormatter(
                     type: System.Net.HttpStatusCode.OK,
-                    message: "Надані контактні дані вже були вказані.");
+                    //message: "Надані контактні дані вже були вказані.");
+                    message: "The contact details provided have already been provided.");
 
             CompanyContactModel contactObj = new CompanyContactModel
             {
@@ -449,7 +457,8 @@ namespace OrganicPortalBackend.Services
 
             return new ResponseFormatter(
                 type: System.Net.HttpStatusCode.OK,
-                message: "Контактні дані додано.",
+                //message: "Контактні дані додано.",
+                message: "Contact details added.",
                 data: new
                 {
                     contactObj.Id,
@@ -480,7 +489,8 @@ namespace OrganicPortalBackend.Services
             if (dbTypeOfActivity != null)
                 return new ResponseFormatter(
                     type: System.Net.HttpStatusCode.OK,
-                    message: "Вказаний вид діяльності вже був вказаний.");
+                    //message: "Вказаний вид діяльності вже був вказаний.");
+                    message: "The specified type of activity has already been specified.");
 
             CompanyTypeOfActivityModel typeOfActivityObj = new CompanyTypeOfActivityModel
             {
@@ -493,7 +503,8 @@ namespace OrganicPortalBackend.Services
 
             return new ResponseFormatter(
                 type: System.Net.HttpStatusCode.OK,
-                message: "Вид діяльності додано.",
+                //message: "Вид діяльності додано.",
+                message: "Activity type added.",
                 data: new
                 {
                     typeOfActivityObj.Id,
@@ -584,10 +595,12 @@ namespace OrganicPortalBackend.Services
                         break;
                     }
                     catch { }
-                    return new Tuple<bool, string>(false, string.Format("Контактні дані \"{0}\" не відповідають типу \"{1}\"", contact, type.GetDescription()));
+                    //return new Tuple<bool, string>(false, string.Format("Контактні дані \"{0}\" не відповідають типу \"{1}\"", contact, type.GetDescription()));
+                    return new Tuple<bool, string>(false, string.Format("Contact data \"{0}\" does not match type \"{1}\"", contact, type.GetDescription()));
 
                 default:
-                    return new Tuple<bool, string>(false, string.Format("Контактні дані \"{0}\" містять не підтримуваний тип.", contact));
+                    //return new Tuple<bool, string>(false, string.Format("Контактні дані \"{0}\" містять не підтримуваний тип.", contact));
+                    return new Tuple<bool, string>(false, string.Format("The contact data \"{0}\" contains an unsupported type.", contact));
             }
 
             return new Tuple<bool, string>(true, value);

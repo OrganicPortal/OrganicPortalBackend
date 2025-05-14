@@ -43,7 +43,8 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> NewSeedAsync(long companyId, SeedIncomingObj incomingObj)
         {
             if (await CompanyIsArchivated(companyId))
-                return new ResponseFormatter(message: "Ця компанія заархівована. Додавання заблоковане.");
+                //return new ResponseFormatter(message: "Ця компанія заархівована. Додавання заблоковане.");
+                return new ResponseFormatter(message: "This company is archived. Adding is blocked.");
 
             SeedModel seed = new SeedModel
             {
@@ -74,14 +75,17 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> EditSeedAsync(long seedId, long companyId, SeedIncomingObj incomingObj)
         {
             if (await CompanyIsArchivated(companyId))
-                return new ResponseFormatter(message: "Ця компанія заархівована. Редагування заблоковане.");
+                //return new ResponseFormatter(message: "Ця компанія заархівована. Редагування заблоковане.");
+                return new ResponseFormatter(message: "This company is archived. Editing is locked.");
 
             var seed = await _dbContext.SeedTable.FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
             if (seed == null)
-                return new ResponseFormatter(message: "Такого насіння не існує.");
+                //return new ResponseFormatter(message: "Такого насіння не існує.");
+                return new ResponseFormatter(message: "Such a seed does not exist.");
 
             if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
-                return new ResponseFormatter(message: "Неможливо редагувати інформацію про насіння, що перебуває на етапі сертифікації.");
+                //return new ResponseFormatter(message: "Неможливо редагувати інформацію про насіння, що перебуває на етапі сертифікації.");
+                return new ResponseFormatter(message: "It is not possible to edit information about seeds that are in the certification stage.");
 
             seed.Name = incomingObj.Name;
             seed.ScientificName = incomingObj.ScientificName;
@@ -148,14 +152,17 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> RemoveSeedAsync(long seedId, long companyId)
         {
             if (await CompanyIsArchivated(companyId))
-                return new ResponseFormatter(message: "Ця компанія заархівована. Видалення заблоковане.");
+                //return new ResponseFormatter(message: "Ця компанія заархівована. Видалення заблоковане.");
+                return new ResponseFormatter(message: "This company is archived. Deletion blocked.");
 
             var seed = await _dbContext.SeedTable.FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
             if (seed == null)
-                return new ResponseFormatter(message: "Такого насіння не існує.");
+                //return new ResponseFormatter(message: "Такого насіння не існує.");
+                return new ResponseFormatter(message: "Such a seed does not exist.");
 
             if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
-                return new ResponseFormatter(message: "Неможливо видалити запис. Доступними для видалення є нові записи й підписані сервісом Solana.");
+                //return new ResponseFormatter(message: "Неможливо видалити запис. Доступними для видалення є нові записи й підписані сервісом Solana.");
+                return new ResponseFormatter(message: "Unable to delete record. New records and records signed by Solana service are available for deletion.");
 
             _dbContext.SeedTable.Remove(seed);
             await _dbContext.SaveChangesAsync();
@@ -165,17 +172,20 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> SendSeedToCertificationAsync(long seedId, long companyId)
         {
             if (await CompanyIsArchivated(companyId))
-                return new ResponseFormatter(message: "Ця компанія заархівована. Насіння неможливо надіслати на сертифікацію.");
+                //return new ResponseFormatter(message: "Ця компанія заархівована. Насіння неможливо надіслати на сертифікацію.");
+                return new ResponseFormatter(message: "This company is archived. Seeds cannot be submitted for certification.");
 
             var seed = await _dbContext.SeedTable
                 .Include(item => item.CERTsList)
                 .FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
 
             if (seed == null)
-                return new ResponseFormatter(message: "Такого насіння не існує.");
+                //return new ResponseFormatter(message: "Такого насіння не існує.");
+                return new ResponseFormatter(message: "Such a seed does not exist.");
 
             if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
-                return new ResponseFormatter(message: "Це насіння вже перебуває на етапі сертифікації.");
+                //return new ResponseFormatter(message: "Це насіння вже перебуває на етапі сертифікації.");
+                return new ResponseFormatter(message: "This seed is already at the certification stage.");
 
 
             foreach (var cert in seed.CERTsList)
@@ -192,7 +202,8 @@ namespace OrganicPortalBackend.Services
             _dbContext.SeedTable.Update(seed);
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Продукт відправлено на сертифікацію");
+            //return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Продукт відправлено на сертифікацію");
+            return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Product sent for certification");
         }
         public async Task<ResponseFormatter> SeedList(long companyId, Paginator paginator)
         {
@@ -218,20 +229,25 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> AddCERTAsync(long seedId, long companyId, CERTIncomingObj incomingObj)
         {
             if (await CompanyIsArchivated(companyId))
-                return new ResponseFormatter(message: "Ця компанія заархівована. Неможливо додати сертифікат.");
+                //return new ResponseFormatter(message: "Ця компанія заархівована. Неможливо додати сертифікат.");
+                return new ResponseFormatter(message: "This company is archived. Unable to add a certificate.");
 
             var seed = await _dbContext.SeedTable.FirstOrDefaultAsync(item => item.Id == seedId && item.CompanyId == companyId);
             if (seed == null)
-                return new ResponseFormatter(message: "Такого насіння не існує.");
+                //return new ResponseFormatter(message: "Такого насіння не існує.");
+                return new ResponseFormatter(message: "Such a seed does not exist.");
 
             if (seed.Status != EnumSeedStatus.New && seed.Status != EnumSeedStatus.Signed)
-                return new ResponseFormatter(message: "Неможливо додати сертифікат. Насіння перебуває на етапі сертифікації.");
+                //return new ResponseFormatter(message: "Неможливо додати сертифікат. Насіння перебуває на етапі сертифікації.");
+                return new ResponseFormatter(message: "Unable to add certificate. Seed is in the certification stage.");
 
             if (await _dbContext.UseCERTTable.AnyAsync(item => item.SeedId == seedId && item.CERTId == incomingObj.CERTId))
-                return new ResponseFormatter(message: "такий сертифікат вже був доданий.");
+                //return new ResponseFormatter(message: "Такий сертифікат вже був доданий.");
+                return new ResponseFormatter(message: "Such a certificate has already been added.");
 
             if (!(await _dbContext.CERTTable.AnyAsync(item => item.Id == incomingObj.CERTId)))
-                return new ResponseFormatter(message: "Вказаного сертифікату не існує.");
+                //return new ResponseFormatter(message: "Вказаного сертифікату не існує.");
+                return new ResponseFormatter(message: "The specified certificate does not exist.");
 
             UseCERTModel cert = new UseCERTModel
             {
@@ -252,7 +268,8 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> RemoveCERTAsync(long UseCERTId, long companyId)
         {
             if (await CompanyIsArchivated(companyId))
-                return new ResponseFormatter(message: "Ця компанія заархівована. Неможливо видалити сертифікат.");
+                //return new ResponseFormatter(message: "Ця компанія заархівована. Неможливо видалити сертифікат.");
+                return new ResponseFormatter(message: "This company is archived. Unable to delete certificate.");
 
             var cert = await _dbContext.UseCERTTable
                 .Include(item => item.Seed)
@@ -263,7 +280,8 @@ namespace OrganicPortalBackend.Services
                 .FirstOrDefaultAsync();
 
             if (cert == null)
-                return new ResponseFormatter(message: "Неможливо видалити сертифікат.");
+                //return new ResponseFormatter(message: "Неможливо видалити сертифікат.");
+                return new ResponseFormatter(message: "Unable to delete certificate.");
 
             _dbContext.UseCERTTable.Remove(cert);
             await _dbContext.SaveChangesAsync();
@@ -293,6 +311,7 @@ namespace OrganicPortalBackend.Services
         // Адміністративні методи
         /* */
         /* */
+
 
         private async Task<bool> CompanyIsArchivated(long companyId)
         {

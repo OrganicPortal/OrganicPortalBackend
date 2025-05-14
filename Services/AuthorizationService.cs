@@ -58,7 +58,8 @@ namespace OrganicPortalBackend.Services
             catch
             {
                 // Response error
-                return new ResponseFormatter(message: "Вказаний номер не підтримується.");
+                //return new ResponseFormatter(message: "Вказаний номер не підтримується.");
+                return new ResponseFormatter(message: "The specified number is not supported.");
             }
 
 
@@ -138,7 +139,8 @@ namespace OrganicPortalBackend.Services
             }
 
             // Response error
-            return new ResponseFormatter(message: "Перевірте правильність введених даних.");
+            //return new ResponseFormatter(message: "Перевірте правильність введених даних.");
+            return new ResponseFormatter(message: "Check the correctness of the entered data.");
         }
         public async Task<ResponseFormatter> SignOutAsync(string token)
         {
@@ -171,7 +173,8 @@ namespace OrganicPortalBackend.Services
             catch
             {
                 // Response error
-                return new ResponseFormatter(message: "Вказаний номер не підтримується.");
+                //return new ResponseFormatter(message: "Вказаний номер не підтримується.");
+                return new ResponseFormatter(message: "The specified number is not supported.");
             }
 
 
@@ -186,7 +189,8 @@ namespace OrganicPortalBackend.Services
             if (await _dbContext.PhoneTable.AnyAsync(item => item.IsActive == true && EF.Functions.Collate(item.Phone, "SQL_Latin1_General_CP1_CS_AS") == phoneShema))
             {
                 // Response error
-                return new ResponseFormatter(message: "Схоже ви вже маєте обліковий запис. Скористайтеся механізмом відновлення паролю.");
+                //return new ResponseFormatter(message: "Схоже ви вже маєте обліковий запис. Скористайтеся механізмом відновлення паролю.");
+                return new ResponseFormatter(message: "It looks like you already have an account. Please use the password recovery mechanism.");
             }
 
             // Check if the user has previously specified a registration process
@@ -212,7 +216,8 @@ namespace OrganicPortalBackend.Services
                 if (dbReg.CodeCount >= ProgramSettings.MaxCodeCount)
                 {
                     // Response error
-                    return new ResponseFormatter(message: "Сталася невідома помилка. Спробуйте трішки пізніше.");
+                    //return new ResponseFormatter(message: "Сталася невідома помилка. Спробуйте трішки пізніше.");
+                    return new ResponseFormatter(message: "An unknown error occurred. Please try again later.");
                 }
 
                 _dbContext.RegTable.Remove(dbReg);
@@ -242,11 +247,12 @@ namespace OrganicPortalBackend.Services
             _dbContext.RegTable.Add(regModel);
             await _dbContext.SaveChangesAsync();
 
-            await SendSMSCode("Код підтвердження реєстрації, на сайті organicportal.in.ua: " + regModel.Code, phone);
+            await SendSMSCode("Registration confirmation code, on the website organicportal.in.ua: " + regModel.Code, phone);
 
             // Response token
             return new ResponseFormatter(type: HttpStatusCode.OK,
-                message: "На вказаний номер було надіслано СМС повідомлення.",
+                //message: "На вказаний номер було надіслано СМС повідомлення.",
+                message: "An SMS message was sent to the specified number.",
                 data: new
                 {
                     Token = regModel.Token
@@ -265,7 +271,8 @@ namespace OrganicPortalBackend.Services
                 .FirstOrDefaultAsync();
 
             if (dbToken == null)
-                return new ResponseFormatter(message: "Код доступу не правильний!");
+                //return new ResponseFormatter(message: "Код доступу не правильний!");
+                return new ResponseFormatter(message: "The access code is incorrect!");
 
 
             RegTokenInformation info = JsonSerializer.Deserialize<RegTokenInformation>(cyberFormatter.DecryptMethod(dbToken.Token, _encryptOptions.TokenKey))!;
@@ -309,7 +316,8 @@ namespace OrganicPortalBackend.Services
             await _dbContext.SaveChangesAsync();
 
             // Response OK message
-            return new ResponseFormatter(type: HttpStatusCode.OK, message: "Код підтверджено. Скористайтеся формою входу для продовження.");
+            //return new ResponseFormatter(type: HttpStatusCode.OK, message: "Код підтверджено. Скористайтеся формою входу для продовження.");
+            return new ResponseFormatter(type: HttpStatusCode.OK, message: "Code confirmed. Please use the login form to continue.");
         }
         public async Task<ResponseFormatter> RetryVerifSMSAsync(string token, string ip)
         {
@@ -323,16 +331,19 @@ namespace OrganicPortalBackend.Services
                 .FirstOrDefaultAsync();
 
             if (dbToken == null)
-                return new ResponseFormatter(message: "Схоже час підтвердження сплив. Спробуйте пізніше.");
+                //return new ResponseFormatter(message: "Схоже час підтвердження сплив. Спробуйте пізніше.");
+                return new ResponseFormatter(message: "It looks like the confirmation time has expired. Please try again later.");
 
 
             RegTokenInformation info = JsonSerializer.Deserialize<RegTokenInformation>(cyberFormatter.DecryptMethod(dbToken.Token, _encryptOptions.TokenKey))!;
 
             if (info.ExpiredDate < DateTime.UtcNow || dbToken.CodeCount >= ProgramSettings.MaxCodeCount)
-                return new ResponseFormatter(message: "Схоже час підтвердження сплив. Спробуйте пізніше.");
+                //return new ResponseFormatter(message: "Схоже час підтвердження сплив. Спробуйте пізніше.");
+                return new ResponseFormatter(message: "It looks like the confirmation time has expired. Please try again later.");
 
             if (dbToken.ExpiredDate.AddMinutes(-2) >= DateTime.UtcNow)
-                return new ResponseFormatter(type: HttpStatusCode.OK, message: "Код ще дійсний. Зачекайте ще хвилину.");
+                //return new ResponseFormatter(type: HttpStatusCode.OK, message: "Код ще дійсний. Зачекайте ще хвилину.");
+                return new ResponseFormatter(type: HttpStatusCode.OK, message: "The code is still valid. Please wait another minute.");
 
             string code = GenerateCode();
 
@@ -365,7 +376,8 @@ namespace OrganicPortalBackend.Services
             catch
             {
                 // Response error
-                return new ResponseFormatter(message: "Вказаний номер не підтримується.");
+                //return new ResponseFormatter(message: "Вказаний номер не підтримується.");
+                return new ResponseFormatter(message: "The specified number is not supported.");
             }
 
 
@@ -399,7 +411,8 @@ namespace OrganicPortalBackend.Services
                 if (lastRecovery != null && lastRecovery.ExpiredDate.AddMinutes(-2) >= dateTime)
                     // Response token
                     return new ResponseFormatter(type: HttpStatusCode.OK,
-                        message: "Зачекайте ще хвилинку. Можливо СМС затримується.",
+                        //message: "Зачекайте ще хвилинку. Можливо СМС затримується.",
+                        message: "Please wait a minute. The SMS may be delayed.",
                         data: new
                         {
                             Token = lastRecovery.Token
@@ -414,19 +427,22 @@ namespace OrganicPortalBackend.Services
 
                 if (dayRecoveryCount >= ProgramSettings.MaxCodeCount)
                     // Response error
-                    return new ResponseFormatter(message: "Сталася невідома помилка. Спробуйте відновити доступ пізніше.");
+                    //return new ResponseFormatter(message: "Сталася невідома помилка. Спробуйте відновити доступ пізніше.");
+                    return new ResponseFormatter(message: "An unknown error has occurred. Please try again later.");
 
 
                 _dbContext.RecoveryTable.Add(recovery);
                 await _dbContext.SaveChangesAsync();
 
 
-                await SendSMSCode("Код скидання паролю: " + code, phone);
+                //await SendSMSCode("Код скидання паролю: " + code, phone);
+                await SendSMSCode("Password reset code: " + code, phone);
             }
 
             // Response token
             return new ResponseFormatter(type: HttpStatusCode.OK,
-                message: "На вказаний номер було надіслано СМС повідомлення з кодом.",
+                //message: "На вказаний номер було надіслано СМС повідомлення з кодом.",
+                message: "An SMS message with a code was sent to the specified number.",
                 data: new
                 {
                     Token = recovery.Token
@@ -435,7 +451,8 @@ namespace OrganicPortalBackend.Services
         public async Task<ResponseFormatter> RecoveryAsync(RecoveryIncomingObj incomingObj, string token)
         {
             if (string.IsNullOrWhiteSpace(token))
-                return new ResponseFormatter(message: "Код не дійсний!");
+                //return new ResponseFormatter(message: "Код не дійсний!");
+                return new ResponseFormatter(message: "The code is not valid!");
 
             var recovery = await _dbContext.RecoveryTable
                 .Where(item => EF.Functions.Collate(item.Token, "SQL_Latin1_General_CP1_CS_AS") == token)
@@ -481,12 +498,14 @@ namespace OrganicPortalBackend.Services
                         await _dbContext.SaveChangesAsync();
 
 
-                        return new ResponseFormatter(type: HttpStatusCode.OK, message: "Пароль змінено успішно. Скористайтеся формою входу для продовження.");
+                        //return new ResponseFormatter(type: HttpStatusCode.OK, message: "Пароль змінено успішно. Скористайтеся формою входу для продовження.");
+                        return new ResponseFormatter(type: HttpStatusCode.OK, message: "Password changed successfully. Please use the login form to continue.");
                     }
                 }
             }
 
-            return new ResponseFormatter(message: "Код не дійсний!");
+            //return new ResponseFormatter(message: "Код не дійсний!");
+            return new ResponseFormatter(message: "The code is not valid!");
         }
 
         public async Task<ResponseFormatter> UserRoles(string token)
