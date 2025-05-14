@@ -8,7 +8,15 @@ using OrganicPortalBackend.Services.Cronos;
 
 
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+# if DEBUG
+    EnvironmentName = Environments.Development
+#else
+    EnvironmentName = Environments.Production
+#endif
+});
+
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {

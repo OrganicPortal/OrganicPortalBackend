@@ -23,11 +23,12 @@
             {
                 // Checks if use developer mode.
                 var webhost = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-                if (!webhost.IsDevelopment())
-                {
-                    var service = scope.ServiceProvider.GetRequiredService<ISolanaCERT>();
-                    var res = service.CronSolana().Result;
-                }
+#if DEBUG
+                _logger.LogInformation("CronJob");
+#else
+                var service = scope.ServiceProvider.GetRequiredService<ISolanaCERT>();
+                var res = service.CronSolana().Result;
+#endif
             }
             return Task.CompletedTask;
         }
