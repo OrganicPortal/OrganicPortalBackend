@@ -114,16 +114,16 @@ namespace OrganicPortalBackend.Services
             signature = txSigUser.Result;
             SignatureList.Add(txSigUser.Result);
 
+            // Проводимо очікування на додавання акаунту
+            if (await TransactionSuccesed(signature) == false)
+                return (false, null);
+
             // На випадок, якщо запис занадто довгий
             int i = 0;
             int chunkSize = 950;
             byte[][] arrays = bytes.GroupBy(s => i++ / chunkSize).Select(item => item.ToArray()).ToArray();
             foreach (byte[] el in arrays)
             {
-                // Проводимо очікування на виконання транзакції в межах 25 с
-                if (await TransactionSuccesed(signature) == false)
-                    return (false, null);
-
                 // Генеруємо інструкцію використання програми
                 var programIx = GenerateProgramCallInstruction(new PublicKey(programId), account.PublicKey, walletAccount.PublicKey, el);
 
@@ -148,6 +148,10 @@ namespace OrganicPortalBackend.Services
 
                 signature = txSig.Result;
                 SignatureList.Add(txSig.Result);
+
+                // Проводимо очікування на виконання транзакції
+                if (await TransactionSuccesed(signature) == false)
+                    return (false, null);
             }
 
             // Повертаємо успішну відповідь
@@ -198,7 +202,7 @@ namespace OrganicPortalBackend.Services
             return account;
         }
 
-        // Очікування транзакції в межах 5 хв
+        // Очікування транзакції в межах 35 с
         public async Task<bool> TransactionSuccesed(string signature)
         {
             for (int i = 0; i < 5; i++)
