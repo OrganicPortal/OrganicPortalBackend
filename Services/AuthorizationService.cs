@@ -27,7 +27,7 @@ namespace OrganicPortalBackend.Services
         public Task<ResponseFormatter> InitRecoveryAsync(InitRecoveryIncomingObj incomingObj);
         public Task<ResponseFormatter> RecoveryAsync(RecoveryIncomingObj incomingObj, string token);
 
-        public Task<ResponseFormatter> UserRoles(string token);
+        public Task<ResponseFormatter> UserRolesAsync(string token);
     }
     public class AuthorizationService : IAuthorization
     {
@@ -508,7 +508,7 @@ namespace OrganicPortalBackend.Services
             return new ResponseFormatter(message: "The code is not valid!");
         }
 
-        public async Task<ResponseFormatter> UserRoles(string token)
+        public async Task<ResponseFormatter> UserRolesAsync(string token)
         {
             CYberFormatter cyberFormatter = new CYberFormatter();
             long userId = JsonSerializer.Deserialize<TokenInformation>(cyberFormatter.DecryptMethod(token, _encryptOptions.TokenKey))!.UserId;

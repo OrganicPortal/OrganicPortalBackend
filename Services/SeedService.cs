@@ -16,7 +16,7 @@ namespace OrganicPortalBackend.Services
         public Task<ResponseFormatter> RemoveSeedAsync(long seedId, long companyId);
         public Task<ResponseFormatter> SendSeedToCertificationAsync(long seedId, long companyId);
         public Task<ResponseFormatter> SeedInfoAsync(long seedId, long companyId);
-        public Task<ResponseFormatter> SeedList(long companyId, Paginator paginator);
+        public Task<ResponseFormatter> SeedListAsync(long companyId, Paginator paginator);
 
         public Task<ResponseFormatter> AddCERTAsync(long seedId, long companyId, CERTIncomingObj incomingObj);
         public Task<ResponseFormatter> RemoveCERTAsync(long UseCERTId, long companyId);
@@ -205,7 +205,7 @@ namespace OrganicPortalBackend.Services
             //return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Продукт відправлено на сертифікацію");
             return new ResponseFormatter(type: System.Net.HttpStatusCode.OK, "Product sent for certification");
         }
-        public async Task<ResponseFormatter> SeedList(long companyId, Paginator paginator)
+        public async Task<ResponseFormatter> SeedListAsync(long companyId, Paginator paginator)
         {
             var query = _dbContext.SeedTable
                 .Where(item => item.CompanyId == companyId);

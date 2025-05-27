@@ -8,13 +8,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OrganicPortalBackend.Controllers
 {
-    [Route("api/seeds")]
     [Authorized]
+    [Route("api/seeds")]
     [ApiController]
     public class SeedController : ControllerBase
     {
         public readonly ISeed _seedService;
-
         public SeedController(ISeed seedService)
         {
             _seedService = seedService;
@@ -25,52 +24,55 @@ namespace OrganicPortalBackend.Controllers
         /* */
         [HttpPost("new")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Створення нового насіння
+        // Ендпойнт створення нового запису про насіння
         public async Task<IActionResult> PostNewSeedAsync([FromQuery] long companyId, SeedIncomingObj incomingObj) => (await _seedService.NewSeedAsync(companyId, incomingObj)).Result;
 
         [HttpPatch("edit")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Редагування інформації про насіння
+        // Ендпойнт редагування інформації про насіння
         public async Task<IActionResult> PatchEditSeedAsync([FromQuery] long seedId, [FromQuery] long companyId, SeedIncomingObj incomingObj) => (await _seedService.EditSeedAsync(seedId, companyId, incomingObj)).Result;
 
         [HttpGet("info")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Поверненян інформації про насіння
+        // Ендпойнт отримання інформації про вказане насіння
         public async Task<IActionResult> GetSeedInfoAsync([FromQuery] long seedId, [FromQuery] long companyId) => (await _seedService.SeedInfoAsync(seedId, companyId)).Result;
 
         [HttpDelete("remove")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Видалення насіння
+        // Ендпойнт видалення запису про насіння
         public async Task<IActionResult> DeleteRemoveSeedAsync([FromQuery] long seedId, [FromQuery] long companyId) => (await _seedService.RemoveSeedAsync(seedId, companyId)).Result;
 
         [HttpPost("list")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Відправка насіння на сертифікацію сервісом
-        public async Task<IActionResult> GetSeedList([FromQuery] long companyId, Paginator paginator) => (await _seedService.SeedList(companyId, paginator)).Result;
+        // Ендпойнт отримання списку насіння компанії
+        public async Task<IActionResult> PostSeedListAsync([FromQuery] long companyId, Paginator paginator) => (await _seedService.SeedListAsync(companyId, paginator)).Result;
+
 
         [HttpGet("send-certifications")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Відправка насіння на сертифікацію сервісом
+        // Ендпойнт відправки запиту для початку процесу сертифікації насіння
         public async Task<IActionResult> GetSendSeedToCertificationAsync([FromQuery] long seedId, [FromQuery] long companyId) => (await _seedService.SendSeedToCertificationAsync(seedId, companyId)).Result;
-
 
         [HttpPost("certs/add")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Додавання сертифікату до насіння
+        // Ендпойнт додавання сертифікату до списку сертифікатів насіння
         public async Task<IActionResult> PostAddCERTAsync([FromQuery] long seedId, [FromQuery] long companyId, CERTIncomingObj incomingObj) => (await _seedService.AddCERTAsync(seedId, companyId, incomingObj)).Result;
 
         [HttpDelete("certs/remove")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Видалення сертифікату з насіння
+        // Ендпойнт видалення сертифікату зі списку сертифікатів насіння
         public async Task<IActionResult> DeleteRemoveCERTAsync([FromQuery] long UseCERTId, [FromQuery] long companyId) => (await _seedService.RemoveCERTAsync(UseCERTId, companyId)).Result;
 
         [HttpGet("certs")]
+        // Ендпойнт отримання списку сертифікатів для насіння
         public async Task<IActionResult> GetCERTList() => (await _seedService.CERTList()).Result;
         /* */
     }
 
 
-    // Вхідний об'єкт для додавання інформації про насіння
+    // Користувацькі вхідні об'єкти
+    /* */
+    // Вхідна інформація, для формування запсиу про насіння
     public class SeedIncomingObj
     {
         [Required]
@@ -131,7 +133,7 @@ namespace OrganicPortalBackend.Controllers
         public double AverageWeightThousandSeeds { get; set; } = 0;
     }
 
-    // Вхідна модель інформації про сертифікат
+    // Вхідна інформація, для формування сертифікатів
     public class CERTIncomingObj
     {
         [Required]
@@ -139,4 +141,5 @@ namespace OrganicPortalBackend.Controllers
         // Ідентифікатор сертифікату
         public long CERTId { get; set; }
     }
+    /* */
 }

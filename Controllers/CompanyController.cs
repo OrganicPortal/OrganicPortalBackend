@@ -7,12 +7,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OrganicPortalBackend.Controllers
 {
-    [ApiController]
     [Authorized]
     [Route("api/companies")]
+    [ApiController]
     public class CompanyController : ControllerBase
     {
+        // Ґетер отримання авторизаційного токену
         private string getToken { get { return HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1] ?? ""; } }
+
 
         public readonly ICompany _companyService;
         public CompanyController(ICompany companyService)
@@ -24,32 +26,32 @@ namespace OrganicPortalBackend.Controllers
         // Користувацькі ендпойнти
         /* */
         [HttpPost("new")]
-        // Створення нової компанії
+        // Ендпойнт створення нової компанії
         public async Task<IActionResult> PostNewCompanyAsync(CompanyIncomingObj incomingObj) => (await _companyService.NewCompanyAsync(incomingObj, getToken)).Result;
 
         [HttpPatch("edit")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
-        // Редагування інформації про компанію
+        // Ендпойнт редагування інформації про компанію
         public async Task<IActionResult> PatchEditCompanyAsync([FromQuery] long companyId, EditCompanyIncomingObj incomingObj) => (await _companyService.EditCompanyAsync(companyId, incomingObj)).Result;
 
-
         [HttpGet("my-companies")]
-        // Список всіх компаній користувача
+        // Ендпойнт отримання списку всіх компаній авторизованого користувача
         public async Task<IActionResult> GetMyCompanyAsync() => (await _companyService.MyCompanyAsync(getToken)).Result;
 
         [HttpGet("info")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner])]
-        // Інформація про окмпанію
-        public async Task<IActionResult> GetCompanyInfo([FromQuery] long companyId) => (await _companyService.CompanyInfoAsync(companyId)).Result;
+        // Ендпойнт отримання інформації про компанію
+        public async Task<IActionResult> GetCompanyInfoAsync([FromQuery] long companyId) => (await _companyService.CompanyInfoAsync(companyId)).Result;
+
 
         [HttpGet("archiving")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Архівування компанії (аналог видалення)
-        public async Task<IActionResult> PostArchivateCompanyAsync([FromQuery] long companyId) => (await _companyService.ArchivateCompanyAsync(companyId)).Result;
+        // Ендпойнт архівування компанії (аналог видалення)
+        public async Task<IActionResult> GetArchivateCompanyAsync([FromQuery] long companyId) => (await _companyService.ArchivateCompanyAsync(companyId)).Result;
 
         [HttpGet("is-archivated")]
         [Roles(useCompanyId: true, roles: [EnumUserRole.Owner, EnumUserRole.Manager])]
-        // Архівування компанії (аналог видалення)
+        // Ендпойнт отримання статусу компанії (чи архівована чи ні)
         public async Task<IActionResult> GetCheckArchivatedCompanyAsync([FromQuery] long companyId) => (await _companyService.CheckArchivatedCompanyAsync(companyId)).Result;
         /* */
 
@@ -58,17 +60,17 @@ namespace OrganicPortalBackend.Controllers
         /* */
         [HttpPost("list")]
         [Roles(useCompanyId: false, roles: [EnumUserRole.SysAdmin, EnumUserRole.SysManager])]
-        // Повернення списку компаній в системі
+        // Ендпойнт отримання списку компаній системи
         public async Task<IActionResult> PostCompanyListAsync(ListIncomingObj incomingObj) => (await _companyService.CompanyListAsync(incomingObj.Paginator)).Result;
 
         [HttpGet("")]
         [Roles(useCompanyId: false, roles: [EnumUserRole.SysAdmin, EnumUserRole.SysManager])]
-        // Повернення інформації про компанію для адміністратора
+        // Ендпойнт отримання інформації про компанію
         public async Task<IActionResult> GetCompanyAsync([FromQuery] long companyId) => (await _companyService.CompanyAsync(companyId)).Result;
 
         [HttpPatch("set-trust")]
         [Roles(useCompanyId: false, roles: [EnumUserRole.SysAdmin, EnumUserRole.SysManager])]
-        // Оновлення рівня довіри
+        // Ендпойнт редагування рівня довіри до компанії в системі OrganicPortal
         public async Task<IActionResult> PatchChangeTrustCompanyAsync([FromQuery] long companyId, [FromQuery] EnumTrustStatus trustStatus) => (await _companyService.ChangeTrustCompanyAsync(companyId, trustStatus)).Result;
         /* */
     }
@@ -164,7 +166,7 @@ namespace OrganicPortalBackend.Controllers
         public ICollection<int> TypeOfActivityList { get; set; } = new List<int>();
     }
 
-    // Вхідна інформація, про контактні дані компанії
+    // Вхідна інформація, для контактних даних компанії
     public class CompanyContactIncomingObj
     {
         [Required]
@@ -184,6 +186,7 @@ namespace OrganicPortalBackend.Controllers
 
     // Адміністративні вхідні об'єкти
     /* */
+    // Вхідна інформація, для отримання списку компаній системи
     public class ListIncomingObj
     {
         [Required]

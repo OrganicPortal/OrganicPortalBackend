@@ -18,54 +18,50 @@ namespace OrganicPortalBackend.Controllers
 
         // Користувацькі ендпойнти
         /* */
-        //[HttpGet("confirmations")]
-        //// Надсилає запит на формування довіреного запису про насіння
-        //public async Task<IActionResult> SolanaConfirmation([FromQuery] long seedId, [FromQuery] long companyId) => (await _solanaCERT.SendSeedToSolanaAsync(seedId)).Result;
-
         [HttpPost("reads")]
-        // Ендпойнт на отримання інформації про насіння
-        public async Task<IActionResult> SolanaReads(ReadIncomingObj incomingObj) => (await _solanaCERT.SolanaReadsAsync(incomingObj.PubKey)).Result;
+        // Ендпойнт читання інформації про запис в Solana
+        public async Task<IActionResult> PostSolanaReads(ReadIncomingObj incomingObj) => (await _solanaCERT.SolanaReadsAsync(incomingObj.PubKey)).Result;
 
         [HttpPost("list")]
-        // Ендпойнт на отримання верифікованого списку з насінням
+        // Ендпойнт отримання списку записів Solana
         public async Task<IActionResult> PostSolanaSeeds(SolanaSeedListIncomingObj incomingObj) => (await _solanaCERT.GetSolanaSeeds(incomingObj)).Result;
 
         [HttpPost("history")]
-        // Ендпойнт на отримання історії про верифіковане насіння
+        // Ендпойнт отримання списку історичних записів про насіння в Solana
         public async Task<IActionResult> PostOneSolanaSeed(SolanaSeedIncomingObj incomingObj) => (await _solanaCERT.OneSolanaSeed(incomingObj)).Result;
         /* */
     }
 
+
     // Користувацькі вхідні об'єкти
     /* */
-    // Об'єкт на читання інформації про насіння
+    // Вхідна інформація, для читання запису з Solana
     public class ReadIncomingObj
     {
+        [Required]
+        [MinLength(3)]
+        // Публичний ключ облікового запису
         public string PubKey { get; set; } = string.Empty;
     }
 
-    // Об'єкт на отримання спсику насіння
+    // Вхідна інформація, для отримання списку записів в Solana
     public class SolanaSeedListIncomingObj
     {
         [Required]
         // Пагінарор записів
         public Paginator Paginator { get; set; } = new Paginator();
 
+        [Required]
         [AllowedValues(-1, 0, 1, 2)]
-        // Оброблене чи не оброблене насіння
+        // Поле фільтрації по Treatment (чи оброблене насіння)
         public int TreatmentType { get; set; } = -1;
     }
 
-    // Об'єкт отримання інформації про обране насіння в Solana
+    // Вхідна інформація, для отримання історії записів по насінню та читання останнього з них з Solana
     public class SolanaSeedIncomingObj
     {
-        //[Required]
-        //[Range(1, long.MaxValue)]
-        //// Ідентифікатор запису в Solana
-        //public long SolanaSeedId { get; set; } = 0;
-
         [Required]
-        [MinLength(1)]
+        [MinLength(3)]
         // Ідентифікатор запсиу в історії
         public string HistoryKey { get; set; } = string.Empty;
     }
