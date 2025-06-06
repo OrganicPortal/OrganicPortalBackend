@@ -33,11 +33,9 @@ namespace OrganicPortalBackend.Services
     public class CompanyService : ICompany
     {
         public readonly OrganicContext _dbContext;
-        public readonly TokenService _tokenService;
-        public CompanyService(OrganicContext dbContext, TokenService tokenService)
+        public CompanyService(OrganicContext dbContext)
         {
             _dbContext = dbContext;
-            _tokenService = tokenService;
         }
 
 
@@ -94,7 +92,7 @@ namespace OrganicPortalBackend.Services
             company.EmployeesList.Add(new EmployeesModel
             {
                 Role = EnumUserRole.Owner,
-                UserId = _tokenService.GetUserIdFromLoginToken(token)
+                UserId = TokenService.GetUserIdFromLoginToken(token)
             });
 
             _dbContext.CompanyTable.Add(company);
@@ -293,7 +291,7 @@ namespace OrganicPortalBackend.Services
             var companyList = await _dbContext.CompanyTable
                 .Include(item => item.EmployeesList)
 
-                .Where(item => item.EmployeesList.Any(item2 => item2.UserId == _tokenService.GetUserIdFromLoginToken(token)))
+                .Where(item => item.EmployeesList.Any(item2 => item2.UserId == TokenService.GetUserIdFromLoginToken(token)))
                 .Select(item => new
                 {
                     item.Id,

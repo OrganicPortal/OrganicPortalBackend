@@ -1,24 +1,26 @@
 ﻿using CYberCryptor;
-using Microsoft.Extensions.Options;
 using OrganicPortalBackend.Models.Database.User.Session;
 using OrganicPortalBackend.Models.Options;
 using System.Text.Json;
 
 namespace OrganicPortalBackend.Services
 {
-    public class TokenService
+    // Статичний клас отримання користувацького ідентифікатора
+    public static class TokenService
     {
-        public readonly EncryptOptions _encryptOptions;
-        public TokenService(IOptions<EncryptOptions> encryptOptions)
+        private static string _tokenKey;
+        private static CYberFormatter _cyberFormatter = new CYberFormatter();
+
+        // Процедура ініціалізації
+        public static void Init(IConfiguration _configuration)
         {
-            _encryptOptions = encryptOptions.Value;
+            _tokenKey = _configuration.GetSection("EncryptOptions").Get<EncryptOptions>()!.TokenKey;
         }
 
-        public long GetUserIdFromLoginToken(string token)
+        // Функція отримання користувацького ідентифікатора
+        public static long GetUserIdFromLoginToken(string token)
         {
-            CYberFormatter cyberFormatter = new CYberFormatter();
-            string value = cyberFormatter.DecryptMethod(token, _encryptOptions.TokenKey);
-
+            var value = _cyberFormatter.DecryptMethod(token, _tokenKey);
             return JsonSerializer.Deserialize<TokenInformation>(value)!.UserId;
         }
     }

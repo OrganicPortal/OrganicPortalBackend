@@ -56,12 +56,15 @@ builder.Services.AddScoped<IUser, UserService>();
 builder.Services.AddScoped<ISeed, SeedService>();
 builder.Services.AddScoped<ISolana, SolanaService>();
 builder.Services.AddScoped<ISolanaCERT, SolanaCERTService>();
-builder.Services.AddScoped<TokenService>();
 
 builder.Services.Configure<EncryptOptions>(builder.Configuration.GetSection("EncryptOptions"));
 builder.Services.Configure<SMSOptions>(builder.Configuration.GetSection("SMSServiceOptions"));
 
 builder.Services.AddAuthorization();
+
+
+// Ініціюємо статичні класи
+TokenService.Init(builder.Configuration);
 
 // Cronos job
 builder.Services.AddCronJob<CronJob>(c =>
